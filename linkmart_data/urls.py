@@ -15,8 +15,15 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from desktop import views
+from store.views import StoreModelViewSet
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('', views.index),                              # 首页
+    path('admin/', admin.site.urls),                    # 后台
+    path('desktop/', include('desktop.urls')),          # 页面
+    path('userauth/', include('login.urls')),           # 用户API
+    path('store/', StoreModelViewSet.as_view({'get': 'list', 'post': 'create', 'put': 'update'})),
+
 ]

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-zpm1f!=4)j#ux&6mpc)t8qzass!pbmq7@sg9b!8ozk$5__=m71
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+X_FRAME_OPTIONS = 'SAMEORIGIN'  # 允许在相同域下嵌套显示
 
 # Application definition
 
@@ -37,8 +38,48 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'desktop',
+    'login',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
+# rest framework 配置
+REST_FRAMEWORK = {
+    # 认证模块
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',  # JWT 认证
+        # 'login.utils.wooght_auth.StuAuth',
+        # 'rest_framework.authentication.SessionAuthentication',  # session 认证,Django默认认证
+        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication'     # 基本认证,一般测试用
+    ),
+    # 渲染方式
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',    # 默认JSON渲染
+        # 'rest_framework.renderers.BrowsableAPIRenderer',    # 默认浏览器API渲染
+    ),
+    # 权限
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',   # 登录状态下才能访问
+        # 'rest_framework.permissions.AllowAny',  # 默认 任何人可以访问
+    ),
+
+    # API 限流
+    # 'DEFAULT_THROTTLE_CLASSES': (
+    #     'rest_framework.throttling.AnonRateThrottle',  # 匿名用户，未登录的    这俩是DRF提供的访问频率限制类
+    #     'rest_framework.throttling.UserRateThrottle'  # 经过登录之后的用户
+    # ),
+    # 频率
+    'DEFAULT_THROTTLE_RATES': {
+            'anon': '20/m',
+            'user': '1000/day'
+    },
+    # 分页
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+AUTH_USER_MODEL = 'login.UserInfo'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -74,9 +115,18 @@ WSGI_APPLICATION = 'linkmart_data.wsgi.application'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'linkmart',
+        'USER': 'root',
+        'PASSWORD': 'wooght565758',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'CHARSET': 'utf8mb4',  # 支持表情，及中文4个字节
     }
 }
 
@@ -113,8 +163,10 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+# 公共静态文件存放地址（包括原始图片，js,css等静态文件） 及模板中static指向的文件夹
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),  # 其中一个静态文件夹
+)
 STATIC_URL = 'static/'
 
 # Default primary key field type
