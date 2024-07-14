@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block css %}
+<link rel="stylesheet" href="/static/plugins/daterangepicker/daterangepicker.css">
+{% endblock%}
+{% block body %}
+<div class="wrapper">  
+  <div class="content-wrapper">
+      <!-- 子页面头部 -->
+      <div class="content-header">
+      </div>
+      <!-- 子页面头部结束 -->
+      
+      <!-- 子页面主体内容 -->
+      <section class="content">
+        <script src="https://api.map.baidu.com/api?type=webgl&v=1.0&ak=45EcEdTSLRwAK9HORoMbqHiR2pX6712T"></script>
+        <script src="/static/dist/js/wooght_map.js"></script>
+        <script src="/static/dist/js/linkmart_cd_json.js"></script>
+        <div class="row">
+            <!-- 地图 -->
+            <div class="col-md-8">
+                <div id="map_box" style="overflow:hidden; width:100%; height:800px;">
+                </div>
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">历史踩点数据</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="the_cd_time"><table width="100%" style="border:1px solid red; margin-bottom: 2px; padding-left: 2px;"><tbody><tr><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td><td>11</td><td class="td_red">12</td><td>13</td><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td class="td_red">19</td><td>20</td><td>21</td><td>22</td><td>23</td></tr></tbody></table></div>
+                        <div style="width: 100%;">
+                            <table class="table">
+                                <tr>
+                                    <th>踩点订单</th>
+                                    <th>对标订单</th>
+                                    <th>对标全天</th>
+                                    <th>住宅订单</th>
+                                    <th>商业订单</th>
+                                    <th>公寓订单</th>
+                                    <th>路人订单</th>
+                                    <th>时间</th>
+                                </tr>
+                                <tbody id="data_list">
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 地图结束 -->
+            <div class="col-md-4">
+                <!-- 添加踩点数据 -->
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">添加新踩点</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" style="margin-bottom: 5px;">
+                            <div class="col-sm-6">
+                                <select name="" id="put_cd_area">
+                                    <option>选择商圈</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <select name="" id="put_store_name">
+                                    <option>选择门店</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" id="caidian_data">
+                            <div class="col-sm-6">
+                                <label for="">踩点订单</label>
+                                <input class="intinput" name="cd_orders" type="text" id="">
+                                <input  style="display: none;" type="text" value="0" id="store_id_input" name="cd_store_id">
+                                <div class="form-group">
+                                    <label>日期:</label>
+                                      <div class="input-group date" id="reservationdate" data-target-input="nearest">
+                                          <input type="text" class="form-control datetimepicker-input" name="cd_date" data-target="#reservationdate">
+                                          <div class="input-group-append" data-target="#reservationdate" data-toggle="datetimepicker">
+                                              <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                          </div>
+                                      </div>
+                                  </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="">对标订单：</label>
+                                <input class="border-blue intinput" name="contrast_orders" type="text">
+                                <div class="form-group">
+                                    <label>时间:</label>
+                
+                                    <div class="input-group date" id="timepicker" data-target-input="nearest">
+                                      <input type="text" name="cd_stime" class="form-control datetimepicker-input" data-target="#timepicker">
+                                      <div class="input-group-append" data-target="#timepicker" data-toggle="datetimepicker">
+                                          <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                      </div>
+                                      </div>
+                                    <!-- /.input group -->
+                                  </div>
+                            </div>                         
+                            <div class="col-sm-6">
+                                <label for="">对标全天：</label>
+                                <input class="border-blue intinput" name="contrast_total_orders" type="text">
+                                <label class="w40">住宅</label>
+                                <input class="intinput" name="home_orders" type="text" id="area_house">
+                                <label class="w40">商业</label>
+                                <input class="intinput" name="business_orders" type="text" id="">
+                            </div>
+
+                            <div class="col-sm-6">
+                                
+                                <label class="w40">公寓</label>
+                                <input class="intinput" name="apartment_orders" type="text" id="">
+                                <label class="w40">路人</label>
+                                <input class="intinput" name="road_orders" type="text" id="">
+                            </div>
+                            <p class="help-block"></p>
+                        </div>
+                        
+                        <div class="box-footer" style="margin-top: 5px; text-align: right;">
+                            <button type="button" id="add_cd_data" class="btn btn-primary">保存</button>
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+                      数据一定要仔细填写,不能有误
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+      <!-- 子页面主体内容结束 -->
+    </div>
+    </div>
+{% endblock %}
+{% block script %}
+<!-- Select2 -->
+<script src="/static/plugins/select2/js/select2.full.min.js"></script>
+<!-- Bootstrap4 Duallistbox -->
+<script src="/static/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>
+<!-- InputMask -->
+<script src="/static/plugins/moment/moment.min.js"></script>
+<script src="/static/plugins/inputmask/jquery.inputmask.min.js"></script>
+<!-- date-range-picker -->
+<script src="/static/plugins/daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="/static/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- BS-Stepper -->
+<script src="/static/plugins/bs-stepper/js/bs-stepper.min.js"></script>
+<script type="text/javascript">
+    var map_data = []
+    var area_list = []
+    var store_list = []
+    //门店标签
+    all_label = {}
+    // 根据屏幕宽度调整头部报表展示方式
+    window_width = document.body.clientWidth
+    window_height = document.body.clientHeight
+    map_box = document.getElementById("map_box")
+    map_box.style.height = (window_height-630)+'px';
+
+    var map = new BMapGL.Map('map_box'); // 创建Map实例
+    map.centerAndZoom(new BMapGL.Point(104.12331316600958,30.640947174653434), 15); // 初始化地图,设置中心点坐标和地图级别
+    map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+    // map.setMapType(BMAP_EARTH_MAP);//卫星地图模式
+    map.setMapType(BMAP_NORMAL_MAP);//标志地图模式
+    map.addEventListener('click', function (e) {
+            if(e.overlay){
+                return;
+            }
+            copy_zb(document.getElementById('area_x'),document.getElementById('area_y'),e.latlng.lng,e.latlng.lat)
+        });
+    xs_area = 0
+    xs_store = 0
+    function set_area(){
+        for(item of area_list){
+            add_fangjia(map,item.point,item.name,'<b style="color:#f00;">'+item.price+'</b>',true)
+        }
+        xs_area = 1
+    }
+    function set_store(){
+        map_add_stores(map)
+        xs_store = 1
+    }
+    var fid_label
+    function set_label(f_label){
+        fid_label = f_label
+    }
+
+
+    $(function(){
+        get_area()  // 获取区域数据
+        for(item of map_data[1]){
+            area_list.push({name:item.area_name, point:[item.area_x, item.area_y], price:item.odds, id:item.id})
+            // add_fangjia(map,[item.area_x, item.area_y],item.area_name,'<b style="color:#f00;">'+item['odds']+'</b>',true)
+        }
+
+        get_label() // 获取门店标签
+        
+        set_store() // 地图显示门店
+        select_area = $('#cd_area')
+
+        // 表单区域下拉框
+        put_select_area = $('#put_cd_area')
+        update_select_area = $('#update_cd_area')
+        $.each(area_list, function(key, val){
+            new_option = '<option value="'+val.id+'">'+val.name+'</option>'
+            select_area.append(new_option)
+            put_select_area.append(new_option)
+            update_select_area.append(new_option)
+        })
+
+        // 组装数据 {区域ID:[门店列表]}
+        // 组装数据 {门店ID:门店信息}
+        store_in_area = {}
+        store_dict = {}
+        for(item of map_data[0]){
+            if(store_in_area[item.cd_area] == undefined){
+                store_in_area[item.cd_area] = []
+            }
+            store_dict[item.store_id] = item
+            store_in_area[item.cd_area].push(item)
+        }
+        // 获取商圈对应门店列表
+        function get_store_list(){
+            stores = store_in_area[this.value]
+            store_select = $('#put_store_name')
+            store_select.find('option').remove()
+            store_select.append(new Option('选择门店', 0))
+            for(item of stores){
+                store_select.append(new Option(item.store_name, item.store_id))
+            }
+            first_store = stores[0]
+            map.centerAndZoom(new BMapGL.Point(first_store.store_x,first_store.store_y), 17);
+        }
+        // 选择门店后,设置门店表单对应值
+        function set_value(){
+            $("#store_id_input").val(this.value)
+            $.ajax({
+                url:'/caidian/data/'+this.value,
+                method:'GET',
+                async:true,
+                data:{'pk':this.value},
+                success:function(all_data){
+                    the_cd_list = $('#data_list')
+                    the_cd_list.html('')
+                    cd_time = []
+                    for(item of all_data){
+                        table_tr = $("<tr>")
+                        for(key in item){
+                            if(key == 'id' || key == 'cd_stime' || key== 'cd_store_id'){
+                                continue
+                            }
+                            else{
+                                td = $('<td>')
+                                td_body = (key == 'cd_date')?(item[key]+' ' + item['cd_stime']) : item[key]
+                                td.text(td_body)
+                                table_tr.append(td)
+                            }
+                        }
+                        the_cd_list.append(table_tr)
+                        the_time = item['cd_stime'].split(':')
+                        cd_time.push(the_time[0])
+                    }
+                    // 显示踩点时间条
+                    cd_time_box = $('#the_cd_time')
+                    for(i=0;i<24;i++){
+                        if(i<10){
+                            now_str = '0'+i
+                        }else{
+                            now_str = i+''
+                        }
+                        if(cd_time.includes(now_str)){
+                            cd_time_box.find('td').eq(i).css('background-color', 'red')
+                        }else{
+                            cd_time_box.find('td').eq(i).css('background-color', '')
+                        }
+                    }
+
+                }
+            })
+        }
+        // 绑定按钮
+        $('#put_cd_area').bind('change', get_store_list)  
+        $("#put_store_name").bind('change', set_value)
+
+        //Date picker
+        $('#reservationdate').datetimepicker({
+            format: 'L'
+        });
+        $('#timepicker').datetimepicker({
+        format: 'LT'
+        })
+    })
+</script>
+{% endblock %}

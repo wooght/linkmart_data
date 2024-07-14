@@ -15,15 +15,20 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from desktop import views
-from store.views import StoreModelViewSet
+from store.views import StoreModelViewSet, StoreOneViewApi
 
 urlpatterns = [
     path('', views.index),                              # 首页
     path('admin/', admin.site.urls),                    # 后台
-    path('desktop/', include('desktop.urls')),          # 页面
+    path('desktop/', include('desktop.urls')),          # 页面,所有HTML页面放这里
     path('userauth/', include('login.urls')),           # 用户API
-    path('store/', StoreModelViewSet.as_view({'get': 'list', 'post': 'create', 'put': 'update'})),
-
+    path('store/', StoreModelViewSet.as_view()),
+    re_path('store/(?P<pk>\d+)', StoreOneViewApi.as_view()),
+    path('caidian/', include('caidian.urls')),           # 踩点
+    path('runspider/', include('run_spider.urls')),      # 运行spider
+    path('goods/', include('goods.urls')),               # linkmart goods
+    path('orders/', include('orders.urls')),             # 订单
+    path('turnover/', include('turnover.urls')),         # 营业额
 ]

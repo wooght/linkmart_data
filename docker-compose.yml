@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:  
+  mysql:  # 默认连接的host
+    image: mysql:latest
+    volumes:
+      - ./mysql/data:/var/lib/mysql/ # 将数据库存储文件挂载到本地/mysql/data 下面
+
+    # restart: always
+
+    ports:
+      - 3307:3306 # 端口映射 宿主及端口:容器端口
+    environment:
+      # MYSQL_USER: root  # root 是mysql默认账户,不能设置
+      MYSQL_ROOT_PASSWORD: wooght565758
+      MYSQL_DATABASE: linkmart
+    container_name: mysql # 自定义容器名称
+
+  app:  
+    build: ./  # 从当前文档创建,会查找当前文件夹下的dockerfile
+    ports:
+      - 80:80
+    volumes:
+      - ./:/app  # 挂载目录，把当前目录挂载到/app目录下
+    environment:
+      - TZ=Asia/Shanghai # 设置容器的环境变量，这里将时区设置为 Asia/Shanghai。
+    depends_on:
+      - mysql # 启动依赖
+    container_name: linkmart_data
+volumes:
+  mysql:

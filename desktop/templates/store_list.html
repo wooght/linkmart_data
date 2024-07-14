@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+  <div class="wrapper">  
+    <div class="content-wrapper">
+      <!-- 子页面头部 -->
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <h1 class="m-0">系统管理</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+              </ol>
+            </div><!-- /.col -->
+          </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+      </div>
+      <!-- 子页面头部结束 -->
+      
+      <!-- 子页面主体内容 -->
+      <section class="content">
+        <div class="row">
+          <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header border-transparent">
+                      <h3 class="card-title">门店列表</h3>
+
+                      <div class="card-tools">
+                          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                          <i class="fas fa-minus"></i>
+                          </button>
+                          <button type="button" class="btn btn-tool" data-card-widget="remove">
+                          <i class="fas fa-times"></i>
+                          </button>
+                      </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body p-0">
+                      <div class="table-responsive">
+                          <table class="table m-0" id="user_list">
+                            <thead>
+                              <tr>
+                                  <th>ID</th>
+                                  <th>门店名称</th>
+                                  <th>门店地址</th>
+                                  <th>编辑</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                  <td><a href="pages/examples/invoice.html">OR9842</a></td>
+                                  <td>Call of Duty IV</td>
+                                  <td><span class="badge badge-success">Shipped</span></td>
+                                  <td><button class="btn btn-block btn-danger" type="button">修改</button></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                    <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer clearfix">
+                    <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Place New Order</a>
+                    <a href="javascript:void(0)" class="btn btn-sm btn-secondary float-right">View All Orders</a>
+                    </div>
+                    <!-- /.card-footer -->
+                </div>
+          </div>
+          <div class="col-md-4">
+              <div class="card bg-gradient-info collapsed-card">
+                <div class="card-header">
+                    <h3 class="card-title">添加门店</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card card-outline card-primary">
+                        <form method="get" id="add_lk_store">
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="name" value="" placeholder="门店名称">
+                            <div class="input-group-append">
+                              <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="adds" value="" placeholder="门店地址">
+                            <div class="input-group-append">
+                              <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="mt_number" value="" placeholder="收银编号">
+                            <div class="input-group-append">
+                              <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="mt_user" value="" placeholder="登录账号">
+                            <div class="input-group-append">
+                              <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="input-group mb-3">
+                            <input type="text" class="form-control" name="mt_password" value="" placeholder="登录密码">
+                            <div class="input-group-append">
+                              <div class="input-group-text">
+                                <span class="fas fa-envelope"></span>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row">
+                            <div class="col-8"></div>
+                            <!-- /.col -->
+                            <div class="col-4">
+                              <button type="button" id="to_add_store" class="btn btn-primary btn-block">添加</button>
+                            </div>
+                            <!-- /.col -->
+                          </div>
+                        </form>
+                      </div>
+                </div>
+              </div>
+              <div class="card bg-gradient-info">
+                <div class="card-header">
+                  <h3 class="card-title">添加踩点门店</h3>
+                  <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                      <i class="fas fa-plus"></i>
+                      </button>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="card card-outline card-primary">
+                      <form method="get" id="put_lk_store">
+                        <div class="input-group mb-3">
+                          <input type="text" class="form-control" name="name" value="" placeholder="门店名称">
+                          <input type="text" id="display_id" class="form-control" style="display: none;" name="id">
+                          <div class="input-group-append">
+                            <div class="input-group-text">
+                              <span class="fas fa-user"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input-group mb-3">
+                          <input type="text" class="form-control" name="adds" value="" placeholder="门店地址">
+                          <div class="input-group-append">
+                            <div class="input-group-text">
+                              <span class="fas fa-envelope"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input-group mb-3">
+                          <input type="text" class="form-control" name="mt_number" value="" placeholder="收银编号">
+                          <div class="input-group-append">
+                            <div class="input-group-text">
+                              <span class="fas fa-envelope"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input-group mb-3">
+                          <input type="text" class="form-control" name="mt_user" value="" placeholder="登录账号">
+                          <div class="input-group-append">
+                            <div class="input-group-text">
+                              <span class="fas fa-envelope"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="input-group mb-3">
+                          <input type="text" class="form-control" name="mt_password" value="" placeholder="登录密码">
+                          <div class="input-group-append">
+                            <div class="input-group-text">
+                              <span class="fas fa-envelope"></span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col-8"></div>
+                          <!-- /.col -->
+                          <div class="col-4">
+                            <button type="button" id="to_up_store" class="btn btn-primary btn-block">修改</button>
+                          </div>
+                          <!-- /.col -->
+                        </div>
+                      </form>
+                    </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </section>
+      <!-- 子页面主体内容结束 -->
+    </div>
+  </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+  $(function(){
+    data = get_store('list')
+  })
+</script>
+{% endblock%}

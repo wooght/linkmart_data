@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+<section class="content container-fluid" style="background-color:#fff;">
+    <div class="card-header border-transparent">
+        <div class="row">
+          <div class="col-sm-6" style="line-height: 48px;">
+            <select name="" id="top_classify">
+            </select>
+            >>
+            <select name="" id="children_classify">
+            </select>
+            <img id="loading_img" style="display: none;" width="30" src="/static/dist/img/loading.gif">
+          </div>
+            <!--搜索-->
+            <div class="col-sm-4 offset-sm-2" style="float: right;">
+            <form action="simple-results.html">
+                <div class="input-group">
+                    <input id="search_input" type="search" class="form-control form-control-lg" placeholder="名称或条码进行搜索">
+                    <div class="input-group-append">
+                        <button type="button"id="search_submit" class="btn btn-lg btn-default">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!--搜索结束-->
+        </div>
+    </div>
+    <script src="/static/dist/js/echarts.js"></script>
+    <div id="chart_box" style="width:100%;height:500px;border:1px solid red;">
+        <div id="main" style="height: 350px; width: 100%; display: block; float: left;"></div>
+        <div id="month_average" style="height: 150px; width: 100%; display: block; float: left;"></div>
+    </div>
+    <div id="loading_box" style="text-align:center;width: 100%; height: 500px; border:1px solid red;">
+        <img style=" margin-top: 100px; " src="/static/dist/img/loading.gif">
+    </div>
+    <div id="quality" class="card card-danger" style="width: 100%; display: none;">
+        <div class="card-header">
+          <h3 class="card-title">加入保质检测单</h3>
+        </div>
+        <div class="card-body">
+          <div id="quality_add_box" class="row">
+            <div class="col-5">
+                <input type="text" value="" id="quality_id" name="goods_id" style="display: none;" >
+                <input type="text" value="" id="quality_code" name="goods_code" style="display: none;" >
+              <input id="quality_name" value="" type="text" class="form-control" placeholder="商品名称">
+            </div>
+            <div class="col-2">
+              <input id="date_nums" name="date_nums" type="text" class="form-control" placeholder="剩余天数">
+            </div>
+            <div class="col-2">
+              <input id="stock_nums" name="stock_nums" type="text" class="form-control" placeholder="个数">
+            </div>
+            <div class="col-3">
+                <button id="add_quality" onclick="add_quality" type="button" class="btn btn-info">ADD</button>
+            </div>
+          </div>
+          <div class="row" id="quality_show_box">
+            <div class="col-12">名称: <b id="label_name"></b></div>
+            <div class="col-3">添加日期: <br /><small><b id="label_add_date"></b></small></div>
+            <div class="col-2">数量: <b id="label_nums"></b></div>
+            <div class="col-2">后销售: <b id="label_sale"></b></div>
+            <div class="col-3">剩余天数: <b class="badge bg-danger" id="label_left_day"></b></div>
+            <input type="text" id="quality_id" style="display: none;">
+            <div class="col-2"><button id="change_quality" type="button" class="btn btn-block btn-danger btn-xs">完成处理</button></small></div>
+          </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div style="width:100%; height:50px; font-size:18px; line-height: 50px; border:1px solid red; color:#fff; background:red; margin:2px 0px;padding:2px;">
+        <span style="float:right; display:block; width: 25%;">日均：<b id="day"></b></span>
+        <span style="float:left; display:block; width:25%;">成本：<b id="cost"></b> </span>
+        <span style="float:left; display:block; width:25%;">毛利率:<b id="gross"></b></span>
+        <span style="float:right; display:block; width: 25%;">可售:<b id="price"></b></span>
+    </div>
+
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table m-0" id="user_list">
+              <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名称</th>
+                    <th>条码</th>
+                    <th>售价</th>
+                    <th>总销量</th>
+                    <th>月销量</th>
+                </tr>
+              </thead>
+              <tbody id="content_list">
+                <tr>
+                    <td><a href="pages/examples/invoice.html">SKU spider</a></td>
+                    <td>Call of Duty IV</td>
+                    <td><span class="badge badge-success">Shipped</span></td>
+                    <td></td>
+                    <td><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">crawl</button></td>
+                </tr>
+                <tr>
+                  <td>
+                      #
+                  </td>
+                  <td>
+                      
+                  </td>
+                  <td>
+                  </td>
+                  <td class="project_progress">
+                  </td>
+                  <td class="project-state">
+                      <span class="badge badge-success">Success</span>
+                  </td>
+                  <td class="project-actions text-right">
+                  </td>
+              </tr>
+              </tbody>
+            </table>
+        </div>
+      <!-- /.table-responsive -->
+      </div>
+</section>
+
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    var classify_data = Object
+    var all_goods = Object
+    // 数据处理入口
+    function seccess_function(result_data){
+        loading_stats(0)
+        all_goods = result_data['goods_data']
+        set_charts(result_data['chart_data'])
+        goods_to_list(result_data['goods_data'])
+        set_contrast_charts(result_data['contrast_data'])
+        get_one_quality(result_data['quality'])
+    }
+    function set_top_classify(data)
+    {
+        $.each(data['top_classify'],function(key, val){
+            select_option = $("<option></option>")
+            select_option.val(val)
+            select_option.text(key)
+            $("#top_classify").append(select_option)
+        })
+        classify_data = data
+        // 触发selected改变
+        $("#top_classify").trigger('change')
+    }
+    // 类别改变
+    $("#top_classify").bind('change', function(){
+        classify_id = this.value
+        $("#children_classify").html('')
+        $('#children_classify').append('<option value='+this.value+'>'+$(this).find('option:selected').text()+'</option>')
+        if(classify_id in classify_data['children']){
+        $.each(classify_data['children'][classify_id], function(name, val){
+            select_option = $("<option></option>")
+            select_option.val(val)
+            select_option.text(name)
+            $("#children_classify").append(select_option)
+        })
+        }
+        loading_stats(1)
+        setTimeout(get_goods,1000)
+    })
+    // 次级类别改变
+    $("#children_classify").change(function(){
+        loading_stats(1)
+        setTimeout(get_goods,1000)
+    })
+
+    function loading_stats(stats){
+        if(stats==1){
+            $("#loading_img").show()
+            $('#loading_box').show()
+            $('#chart_box').hide()
+        }else{
+            $("#loading_img").hide()
+            $('#loading_box').hide()
+            $('#chart_box').show()
+        }
+    }
+    
+    // 显示商品列表
+    function goods_to_list(data){
+        // 提取数据,并计算header显示数据
+        cost = 0
+        can_sale = 0
+        maoli = 0
+        $('#content_list').html('')
+        // 数据进行销量排序
+        sort_key = good_sales_sort(1)
+        if(sort_key.length == 1){
+            $('#quality').show()
+        }else{
+            $('#quality').hide()
+        }
+        max_sum = 0
+        $.each(sort_key, function(key, sort_k){
+            if(key == 0){
+                // 销量100%的值
+                max_sum = data[sort_k]['sum']
+                // 保质单数据
+                if(sort_key.length == 1){
+                    $('#quality_name').val(data[sort_k]['name'])
+                    $('#quality_id').val(data[sort_k]['id'])
+                    $('#quality_code').val(data[sort_k]['bar_code'])
+                }
+            }
+            tr = $('<tr></tr>')
+            tr.append('<td>'+data[sort_k]['id']+'</td>')
+            tr.append('<td><a href="#" onclick="get_one('+data[sort_k]['bar_code']+')">'+data[sort_k]['name']+'</a></td>')
+            tr.append('<td>'+data[sort_k]['bar_code']+'</td>')
+            tr.append('<td>'+data[sort_k]['price']+'</td>')
+            tr.append('<td class="project_progress">'+'<div class="progress progress-sm"><div class="progress-bar bg-green" role="progressbar" aria-valuenow="'+data[sort_k]['sum']/max_sum*100+'" aria-valuemin="0" aria-valuemax="100" style="width: '+data[sort_k]['sum']/max_sum*100+'%"></div></div><small>'+data[sort_k]['sum']+'</small></td>')
+            tr.append('<td>'+data[sort_k]['sum_30']+'</td>')
+            $('#content_list').append(tr)
+            // 计算header值
+            cost += data[sort_k]['cost'] * data[sort_k]['stock_nums']
+            can_sale += data[sort_k]['price'] * data[sort_k]['stock_nums']
+        })
+        maoli = (can_sale - cost) / can_sale
+        $("#gross").text(maoli.toFixed(2))
+        $('#price').text(can_sale.toFixed(2))
+        $('#cost').text(cost.toFixed(2))
+    }
+    var main_chart
+    var contrast_chart
+    // 运行走势图表
+    function set_charts(data){
+        main_chart = echarts.init(document.getElementById('main'));
+        all_date = []       // 所有日期
+        all_nums = []       // 所有销量
+        month_average = []  // 月平均值
+        $.each(data, function(key, val){
+            all_date.push(val['date'])
+            all_nums.push(val['goods_num'])
+            month_average.push(val['month_mean'])
+        })
+        // 指定图表的配置项和数据
+        var option = {
+            title: {
+                text: ''
+            },
+            tooltip: {},
+            legend: {
+                data:['营业量','月均值'],
+                right:10,
+                icon:'rect'
+            },
+            grid: {
+                'left':'8%',
+                'top': '10%',
+                'right': '5%',
+                'bottom': '6%'
+            },
+            xAxis: {
+                data: all_date
+            },
+            yAxis: {},
+            series: [{
+                name: '营业量',
+                type: 'bar',
+                data: all_nums
+                },
+                {
+                name: '月均值',
+                type: 'line',
+                data: month_average
+                }]
+        };
+
+        // 使用刚指定的配置项和数据显示图表。
+        main_chart.setOption(option);
+    }
+    // 运行涨跌图表
+    function set_contrast_charts(data){
+        all_date = []
+        month_contrast = []
+        year_contrast = []
+        all_goods_num = 0
+        $.each(data, function(key, val){
+            all_date.push(val['month'])
+            month_contrast.push(val['month_contrast'])
+            year_contrast.push(val['year_contrast'])
+            all_goods_num += val['goods_num']
+        })
+        // 月均涨幅图
+        contrast_chart = echarts.init(document.getElementById('month_average'));
+        var option = {
+            title: {
+                text: ''
+            },
+            tooltip: {},
+            grid:{
+                top:'5%',
+                left:'5%',
+                bottom:'5%',
+                right:'5%',
+                containLabel:true
+            },
+            xAxis: {
+                data: all_date
+            },
+            yAxis: {},
+            series: [{
+                name: '同比',
+                type: 'bar',
+                data: year_contrast
+                },{
+                name: '环比',
+                type: 'bar',
+                data: month_contrast
+                },]
+        };
+        contrast_chart.setOption(option);
+        contrast_chart.connect([main_chart])
+        main_chart.connect(contrast_chart)
+        $('#day').text((all_goods_num/401).toFixed(2))
+
+    }
+
+    // 获取数据
+    function get_goods(action=1){
+        categoryId = $('#children_classify').val()
+        result_data = get_data(url='/orders/classify_orders/', data={'categoryId':categoryId}, seccess_function)
+    }
+
+    //排序
+    function good_sales_sort(a_or_b){
+        if(a_or_b>0){
+            var sort_key = Object.keys(all_goods).sort(function(a,b){return -(all_goods[a].sum-all_goods[b].sum)})
+        }else{
+            var sort_key = Object.keys(all_goods).sort(function(a,b){return -(all_goods[a]['sum_30']-all_goods[b]['sum_30'])})
+        }
+        return sort_key
+    }
+    // 搜索
+    function get_one(bar_code){
+        $('#search_input').val(bar_code)
+        to_search()
+    }
+    function to_search(){
+        loading_stats(1)
+        s_words = $('#search_input').val()
+        if(s_words.length < 2){return}
+        goods_data = post_data(url='/orders/classify_orders/', data={'search':s_words}, seccess_function)
+    }
+
+    function result_quality(data){
+        if(data['state']==2){
+            alert('操作成功')
+            
+        }else if(data['state']==1){
+            alert('加入成功')
+        }
+        $('#quality').hide()
+    }
+    //加入保质单
+    function add_quality(){
+        id = $('#quality_id').val()
+        date_nums = $('#date_nums').val()
+        stock_nums = $('#stock_nums').val()
+        goods_code = $('#quality_code').val()
+        data = {'goods':id, 'date_nums':date_nums,
+         'stock_nums':stock_nums, 'goods_code':goods_code}
+        post_data('/goods/quality/', data=data, result_quality)
+    }
+    //获取保质单
+    function get_one_quality(data){
+        if(data != null){
+            current_quality = data[0]
+            $('#quality_show_box').show()
+            $('#quality_add_box').hide()
+            $('#label_name').text(current_quality['name'])
+            $('#label_sale').text(current_quality['sale_nums'])
+            $('#label_nums').text(current_quality['then_nums'])
+            $('#label_add_date').text(current_quality['add_date'])
+            $('#label_left_day').text(current_quality['left_day'])
+            $('#quality_id').val(current_quality['quality_id'])            
+        }else{
+            $('#quality_show_box').hide()
+            $('#quality_add_box').show()
+        }
+    }
+    // 改变保质状态
+    function change_quality(){
+        id = $('#quality_id').val()
+        put_data('/goods/quality/'+id, {'id':id, 'state':2}, result_quality)
+    }
+
+
+    // 加载完后运行
+    $(function(){
+    // 获取分类
+    classify_data = get_data(url='/goods/classify/', data={}, set_top_classify)
+    main_box = document.getElementById("main")
+    month_box = document.getElementById('month_average')
+    chart_box = document.getElementById('chart_box')
+    if(document.body.clientWidth>1000){
+            main_box.style.width = "50%";
+            main_box.style.height = '400px'
+            month_box.style.width = "50%"
+            month_box.style.height = '400px'
+            chart_box.style.height = '400px'
+            $('#loading_box').style.height='400px'
+        }
+    })
+    $('#search_submit').bind('click', to_search)
+    $('#add_quality').bind('click', add_quality)
+    $('#change_quality').bind('click', change_quality)
+</script>
+{% endblock%}

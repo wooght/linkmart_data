@@ -23,17 +23,17 @@ class BsData(models.Model):
 
 
 class CdArea(models.Model):
-    area_name = models.CharField(max_length=32)
-    area_house = models.IntegerField()
-    area_peoples = models.IntegerField(blank=True, null=True)
-    area_occ_rate = models.FloatField(blank=True, null=True)
-    area_stores = models.IntegerField(blank=True, null=True)
-    stores_occ_rate = models.FloatField(blank=True, null=True)
-    area_consumption_rate = models.FloatField(blank=True, null=True)
-    area_totle_orders = models.IntegerField(blank=True, null=True)
-    area_x = models.FloatField(blank=True, null=True)
-    area_y = models.FloatField(blank=True, null=True)
-    home_peoples = models.FloatField(blank=True, null=True)
+    area_name = models.CharField(max_length=32)                         # 区域名称
+    area_house = models.IntegerField()                                  # 户数
+    area_peoples = models.IntegerField(blank=True, null=True)           # 区域人数
+    area_occ_rate = models.FloatField(blank=True, null=True)            # 入住率
+    area_stores = models.IntegerField(blank=True, null=True)            # 门店数量
+    stores_occ_rate = models.FloatField(blank=True, null=True)          # 门店入住率
+    area_consumption_rate = models.FloatField(blank=True, null=True)    # 消费概率
+    area_totle_orders = models.IntegerField(blank=True, null=True)      # 订单量
+    area_x = models.FloatField(blank=True, null=True)                   # x坐标
+    area_y = models.FloatField(blank=True, null=True)                   # y坐标
+    home_peoples = models.FloatField(blank=True, null=True)             # 户均人数
 
     class Meta:
         managed = False
@@ -41,16 +41,16 @@ class CdArea(models.Model):
 
 
 class CdData(models.Model):
-    cd_store_id = models.IntegerField()
-    cd_orders = models.IntegerField()
-    contrast_orders = models.IntegerField()
-    contrast_total_orders = models.IntegerField()
-    home_orders = models.IntegerField(blank=True, null=True)
-    business_orders = models.IntegerField(blank=True, null=True)
-    apartment_orders = models.IntegerField(blank=True, null=True)
-    road_orders = models.IntegerField(blank=True, null=True)
-    cd_date = models.DateField(blank=True, null=True)
-    cd_stime = models.TimeField(blank=True, null=True)
+    cd_store_id = models.IntegerField()                             # 门店ID
+    cd_orders = models.IntegerField()                               # 该踩点订单量
+    contrast_orders = models.IntegerField()                         # 对标门店订单量
+    contrast_total_orders = models.IntegerField()                   # 对标门店当天总订单量
+    home_orders = models.IntegerField(blank=True, null=True)        # 住宅提供订单量
+    business_orders = models.IntegerField(blank=True, null=True)    # 商业订单量
+    apartment_orders = models.IntegerField(blank=True, null=True)   # 公寓订单量
+    road_orders = models.IntegerField(blank=True, null=True)        # 路人订单量
+    cd_date = models.DateField(blank=True, null=True)               # 踩点日期
+    cd_stime = models.TimeField(blank=True, null=True)              # 踩点时间
 
     class Meta:
         managed = False
@@ -70,19 +70,19 @@ class CdLabel(models.Model):
 
 
 class CdStore(models.Model):
-    store_name = models.CharField(max_length=32)
-    cd_area = models.IntegerField()
-    store_x = models.FloatField()
-    store_y = models.FloatField()
-    is_24h = models.IntegerField()
-    is_smoke = models.IntegerField()
-    store_orders = models.IntegerField()
-    store_turnover = models.IntegerField()
-    contrast_orders = models.IntegerField()
-    store_size = models.IntegerField()
-    store_waiters = models.IntegerField()
-    door_header = models.FloatField()
-    cd_label = models.CharField(max_length=32, blank=True, null=True)
+    store_name = models.CharField(max_length=32)                            # 超时名称
+    cd_area = models.IntegerField()                                         # 区域ID
+    store_x = models.FloatField()                                           # x坐标
+    store_y = models.FloatField()                                           # y坐标
+    is_24h = models.IntegerField()                                          # 是否24小时
+    is_smoke = models.IntegerField()                                        # 是否有烟
+    store_orders = models.IntegerField()                                    # 门店订单量
+    store_turnover = models.IntegerField()                                  # 预估营业额
+    contrast_orders = models.IntegerField()                                 # 对标订单量
+    store_size = models.IntegerField()                                      # 门店面积
+    store_waiters = models.IntegerField()                                   # 店员数量
+    door_header = models.FloatField()                                       # 门头宽度
+    cd_label = models.CharField(max_length=32, blank=True, null=True)       # 门店标签
 
     class Meta:
         managed = False
@@ -105,9 +105,11 @@ class GoodsData(models.Model):
 class GoodsList(models.Model):
     name = models.CharField(max_length=64)                          # 名称
     bar_code = models.CharField(max_length=32)                      # 条码
+    sku_id = models.CharField(max_length=32, default=0)                        # 商品美团ID
     qgp = models.IntegerField()                                     # 保质期
-    store = models.ForeignKey('StoreList', models.DO_NOTHING)   # 门店ID
+    store = models.ForeignKey('StoreList', models.DO_NOTHING, default=1)   # 门店ID
     classify = models.CharField(max_length=32)                      # 分类
+    category_id = models.IntegerField(default=0)                             # 分类ID
     stock_nums = models.IntegerField()                              # 库存
     cost = models.FloatField(blank=True, null=True)                 # 成本
     price = models.FloatField(blank=True, null=True)                # 售价
@@ -115,7 +117,7 @@ class GoodsList(models.Model):
     place = models.CharField(max_length=32, blank=True, null=True)      # 产地
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'goods_list'
 
 # 保质检查单
@@ -170,6 +172,7 @@ class OrderForm(models.Model):
     form_code = models.CharField(max_length=32)     # 订单号
     goods_name = models.CharField(max_length=64)    # 商品名称
     goods_code = models.CharField(max_length=64)    # 商品条码
+    sku_id = models.CharField(max_length=32, default=0)        # 商品美团ID
     goods_num = models.IntegerField()               # 商品数量
     goods_money = models.FloatField()               # 商品金额
     form_date = models.DateField()                  # 日期
@@ -177,9 +180,10 @@ class OrderForm(models.Model):
     form_money = models.FloatField()                # 订单金额
     form_money_true = models.FloatField()           # 实付金额
     store_id = models.IntegerField()                # 门店ID
+    # vip = models.SmallIntegerField(default=0)       # 是否VIP
 
     class Meta:
-        managed = False
+        managed = True
         db_table = 'order_form'
 
 
@@ -199,7 +203,22 @@ class StockWidthGoods(models.Model):
 class StoreList(models.Model):
     name = models.TextField()       # 名字
     adds = models.TextField()       # 地址
+    mt_number = models.CharField(max_length=32, default='00')     # 美团编号
+    mt_user = models.CharField(max_length=32, default='00')       # 美团账号
+    mt_password = models.TextField(default='12345678')            # 美团密码
+
+    class Meta:
+        managed = True
+        db_table = 'store_list'
+
+class GoodsClassify(models.Model):
+    store_id = models.IntegerField()            # 门店ID
+    name = models.CharField(max_length=32)                   # 名称
+    parentId = models.IntegerField()            # 父级ID
+    categoryName = models.CharField(max_length=32)           # 名称
+    categoryId = models.IntegerField()          # ID
+    parentCategoryId = models.IntegerField()    # 父级ID
 
     class Meta:
         managed = False
-        db_table = 'store_list'
+        db_table = 'goods_classify'

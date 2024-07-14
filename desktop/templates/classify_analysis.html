@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+  <div class="wrapper">  
+    <div class="content-wrapper">
+      <!-- 子页面头部 -->
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <h1 class="m-0">分类概况</h1>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+              </ol>
+            </div><!-- /.col -->
+          </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+      </div>
+      <!-- 子页面头部结束 -->
+      
+      <!-- 子页面主体内容 -->
+      <section class="content">
+        
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="main" style="width:100%;height:400px; text-align: center; border:0px solid red;float:left;">
+                    <img style="margin: 100px auto;" src="/static/dist/img/loading.gif">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="children_classify" style="width:100%;height:400px; border:0px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+              <div class="card">
+                <div class="card-header border-transparent">
+                  <h3 class="card-title"></h3>
+                  <div class="card-tools">
+                  </div>
+                </div>
+                <div class="card-body p-0">
+                  <div id="contrast_classify" style="width: 100%; height: 400px; text-align: center;">
+                    <img style="margin: 100px auto;" src="/static/dist/img/loading.gif">
+                  </div>
+                  <div id="contrast_classify_down" style="width: 100%; height: 350px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="classify_corr" style="width:100%;height:800px; border:1px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="classify_corr_quarter" style="width:100%;height:800px; border:1px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>  
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="main_week_hours" style="width: 100%; height: 300px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- 子页面主体内容结束 -->
+    </div>
+  </div>
+  {% endblock %}
+  {% block script %}
+  <script src="/static/dist/js/echarts.js"></script>
+  <script type="text/javascript">
+    // 子类数据
+    var children_classify = {}
+    // 顶级类分类
+    function one_classify(categoryId){
+        data = children_classify[categoryId]
+        classify_list = []
+        goods_num_list = []
+        $.each(data, function(key,val){
+            classify_list.push(key)
+            goods_num_list.push(val)
+        })
+        var myChart = echarts.init(document.getElementById('children_classify'));
+        option = {
+            tooltip : {
+                trigger: 'axis',
+                axisPointer : {            // 坐标轴指示器，坐标轴触发有效
+                    type : 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+                }
+            },
+            legend: {
+                data:classify_list
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            calculable : true,
+            yAxis : [
+                {
+                    type : 'value'
+                }
+            ],
+            xAxis : [
+                {
+                    type : 'category',
+                    data : classify_list
+                }
+            ],
+            series : [
+                {
+                    name:'销量',
+                    type:'bar',
+                    stack: '总量',
+                    itemStyle : { normal: {label : {show: true, position: 'insideRight'}}},
+                    data:goods_num_list
+                },
+            ]
+        };
+        myChart.setOption(option)
+    }
+    // 顶级类图表
+    function headers_charts(data){
+        // 设置子类数据
+        $.each(data['children_classify'], function(key, val){
+            if(!(val.parentName in children_classify)){
+                children_classify[val.parentName] = {}
+            }
+            if(!(val.categoryName in children_classify[val.parentName])){
+                children_classify[val.parentName][val.categoryName] = val.goods_num
+            }
+        })
+        // 顶级类
+        first_10_classify = data['top_classify'][2]
+        top_classify = []
+        classify_name = []
+        var i=0
+        
+        other_classify = 0
+        $.each(first_10_classify, function(key, val){
+            if(i<10){
+                classify_name.push(key)
+                top_classify.push({value:val, name:key})
+            }else{
+                other_classify += val
+            }
+            i++
+        })
+        classify_name.push('其他')
+        top_classify.push({value:other_classify, name:'其他'})
+        var myChart = echarts.init(document.getElementById('main'));
+        option = {
+            tooltip : {
+                trigger: 'item',
+                formatter: "{b} : {d}%"
+            },
+            legend: {
+                x : 'center',
+                y : 'bottom',
+                data:classify_name
+            },
+            gride:{
+                top: '0%'
+            },
+            series : [
+                {
+                    name:'半径模式',
+                    type:'pie',
+                    radius : '55%',
+                    center : ['50%', '40%'],
+                    roseType : 'radius',
+                    data:top_classify
+                },
+            ]
+        };        
+        myChart.setOption(option);
+        myChart.on('click', function(param){
+            one_classify(param.name)    // name 只点击位置的值 和这里上下文的名称没有关系
+        })
+        one_classify(classify_name[0])
+    }
+
+    // 分类同比,环比
+    function contrast_classify(data){
+        // 基于小时数据图标
+        var hours_chart = echarts.init(document.getElementById('contrast_classify'));
+        var down_chart = echarts.init(document.getElementById('contrast_classify_down'));
+        last_month = []
+        current_month = []
+        same_month = []
+        classify_list = []
+        same_contrast = []
+        last_contrast = []
+        $.each(data[0], function(key, val){
+            classify_list.push(key)
+            last_month.push(data[1][key])
+            same_month.push(val)
+            current_month.push(data[2][key])
+            same_contrast.push((data[2][key] - val) / val)
+            last_contrast.push((data[2][key] - data[1][key]) / data[1][key])
+        })
+        chart_data = [
+            {name: 'LAST',type: 'line',data: last_month},
+            {name: 'SAME',type: 'line',data: same_month},
+            {name: 'CURRENT',type: 'line',data:current_month}
+        ]
+        set_charts(hours_chart, chart_data,classify_list,'CONTRAST',['CURRENT','LAST','SAME'])
+
+        down_chart_data = [
+            {name:'同比', type: 'bar', data:same_contrast},
+            {name:'环比', type: 'bar', data:last_contrast},
+        ]
+        set_charts(down_chart, down_chart_data, classify_list, '振幅', ['同比', '环比'])
+    }
+    // 分类相关性corr
+    function classify_corr(data){
+      children_corr = data[0][0]
+      y_data = []
+      x_data = []
+      $.each(children_corr, function(key, val){
+        y_data.push(key)
+        x_data.push(val)
+      })
+      chart_data = [
+        {name:'corr', type:'bar', data:x_data},
+      ]
+      var children_chart_box = echarts.init(document.getElementById('classify_corr'));
+      set_charts_stand(children_chart_box, chart_data, y_data, 'YEAR CORR')
+      quarter_corr = data[1][0]
+      y_data = []
+      x_data = []
+      $.each(quarter_corr, function(key, val){
+        y_data.push(key)
+        x_data.push(val)
+      })
+      chart_data = [
+        {name:'corr', type:'bar', data:x_data},
+      ]
+      var children_chart_box = echarts.init(document.getElementById('classify_corr_quarter'));
+      set_charts_stand(children_chart_box, chart_data, y_data, 'QUARTER CORR')
+    }
+
+    // CLASSIFY图表入口
+    function classify_api(data){
+        headers_charts(data)
+        contrast_classify(data['top_classify'])
+        classify_corr(data['corr'])
+    }
+    get_data('/orders/classify_analysis/', {}, classify_api)
+  </script>
+  {% endblock %}

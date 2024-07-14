@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+<section class="content container-fluid" style="background-color:#fff;">
+    <div class="card-header border-transparent">
+        <h3>保质单</h3>
+    </div>
+    <div class="card-body p-0">
+        
+        <div class="table-responsive">
+            <table class="table m-0" id="user_list">
+              <thead>
+                <tr>
+                    <th>品名</th>
+                    <th>添加日期</th>
+                    <th>数量</th>
+                    <th>销售</th>
+                    <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="content_list">
+              </tbody>
+            </table>
+        </div>
+        <div id="loading_box" style="text-align:center;width: 100%; height: 500px;">
+            <img style=" margin-top: 100px; " src="/static/dist/img/loading.gif">
+        </div>
+      </div>
+</section>
+
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    var classify_data = Object
+    var all_goods = Object
+    // 数据处理入口
+    function seccess_function(result_data){
+        loading_stats(0)
+        all_goods = result_data['goods_data']
+        set_charts(result_data['chart_data'])
+        goods_to_list(result_data['goods_data'])
+        set_contrast_charts(result_data['contrast_data'])
+        get_one_quality(result_data['quality'])
+    }
+
+    function loading_stats(stats){
+        if(stats==1){
+            $("#loading_img").show()
+            $('#loading_box').show()
+            $('#chart_box').hide()
+        }else{
+            $("#loading_img").hide()
+            $('#loading_box').hide()
+            $('#chart_box').show()
+        }
+    }
+    
+    // 显示商品列表
+    function goods_to_list(data){
+        $('#content_list').html('')
+        $('#loading_box').hide()
+        // 数据进行销量排序
+        sort_key = good_sales_sort(data)
+        $.each(sort_key, function(key, sort_k){
+            tr = $('<tr id="quality_'+data[sort_k]['quality_id']+'"></tr>')
+            tr.append('<td><a onclick="get_one('+data[sort_k]['bar_code']+')">'+data[sort_k]['name']+
+                '</a><br /><small>'+data[sort_k]['bar_code']+'</small></td>')
+            tr.append('<td>'+data[sort_k]['add_date']+
+                '<br /><small class="badge bg-danger">余:'+data[sort_k]['left_day']+'天</small></td>')
+            tr.append('<td>'+data[sort_k]['then_nums']+'</td>')
+            tr.append('<td>'+data[sort_k]['sale_nums']+'</td>')
+            tr.append('<td><input class="btn btn-block btn-danger btn-xs" type="button" onclick="change_quality('+data[sort_k]['quality_id']+')" value="完成处里" ></td>')
+            $('#content_list').append(tr)
+        })
+    }
+
+    // 获取数据
+    function get_goods(action=1){
+        get_data('/goods/quality/', {}, goods_to_list)
+    }
+
+    //排序
+    function good_sales_sort(all_goods){
+        sort_key = Object.keys(all_goods).sort(function(a,b){return -(all_goods[a].left_day-all_goods[b].left_day)})
+        return sort_key
+    }
+    function result_quality(data){
+        if(data['state']==2){
+            alert('操作成功')
+        }else if(data['state']==1){
+            alert('加入成功')
+        }
+        $('#quality_'+data['id']).hide()
+    }
+    // 改变保质状态
+    function change_quality(id){
+        put_data('/goods/quality/'+id, {'id':id, 'state':2}, result_quality)
+    }
+    $(function(){
+        get_goods()
+    })
+</script>
+{% endblock%}

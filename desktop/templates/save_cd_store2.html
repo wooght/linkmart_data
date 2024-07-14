@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+<div class="wrapper">  
+  <div class="content-wrapper">
+      <!-- 子页面头部 -->
+      <div class="content-header">
+      </div>
+      <!-- 子页面头部结束 -->
+      
+      <!-- 子页面主体内容 -->
+      <section class="content">
+        <script src="https://api.map.baidu.com/api?type=webgl&v=1.0&ak=45EcEdTSLRwAK9HORoMbqHiR2pX6712T"></script>
+        <script src="/static/dist/js/wooght_map.js"></script>
+        <script src="/static/dist/js/linkmart_cd_json.js"></script>
+        <div class="row">
+            <!-- 地图 -->
+            <div class="col-md-8">
+                <div id="map_box" style="overflow:hidden; width:100%; height:800px;">
+                </div>
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">编辑门店标签</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="store_label" style="width: 100%;">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 地图结束 -->
+            <div class="col-md-4">
+                <!-- 添加门店 -->
+                  <div class="card bg-gradient-info collapsed-card">
+                    <div class="card-header">
+                        <h3 class="card-title">添加踩点门店</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body" style="display: none;">
+                        <form role="form" name="add_store" id="add_store">
+                            <div id="map_form_box">
+                                    <div class="box box-info">
+                                        <h5 class="box-title">基本属性</h5>
+                                        <div class="inputbox">
+                                            <input type="text" class="form-control rounded-0" placeholder="名称" name="store_name">
+                                            <select name="cd_area" id="cd_area">
+                                            </select>
+                                            <select name="is_24h">
+                                                <option value="1">24小时</option>
+                                                <option value="0">7-23</option>
+                                                <option value="2">7-01</option>
+                                            </select>
+                                            <select name="is_smoke">
+                                                <option value="1">有烟</option>
+                                                <option value="0">无烟</option>
+                                            </select>
+                                            <br />
+                                            <label for="">坐标X：</label>
+                                            <input class="border-blue" name="store_x" type="text" id="area_x"><br />
+                                            <label for="">坐标Y：</label>
+                                            <input class="border-blue" name="store_y" type="text" id="area_y">
+                                        </div>
+                                </div>
+                                    <div class="box box-info">
+                                        <h5 class="box-title">踩点数据</h5>
+                                        <div class="inputbox">
+                                            <input class="form-control rounded-0" placeholder="单量" name="store_orders" type="text">
+                                            <input class="form-control rounded-0" placeholder="营业额" name="store_turnover" type="text">
+                                            <input class="form-control rounded-0" placeholder="对标单量" name="contrast_orders" type="text" id=""><br>
+                                            <input class="form-control rounded-0" placeholder="面积" name="store_size" type="text" id="">
+                                            <input class="form-control rounded-0" placeholder="员工数" name="store_waiters" type="text" id="">
+                                            <input class="form-control rounded-0" placeholder="门头宽" name="door_header" type="text" id="">
+                                        </div>
+                                        <p class="help-block"></p>
+                                    </div>
+                                <div class="box-footer">
+                                    <button type="button" id="add_cd_store" class="btn btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer"  style="display: none;">
+                      踩点数据可以不填写,默认为0
+                    </div>
+                </div>
+                <!-- 修改门店 -->
+                <div class="card card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">修改踩点门店</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        
+                            <div id="map_form_box">
+                                <div class="box box-info">
+                                    <select name="" id="put_cd_area">
+                                        <option>选择商圈</option>
+                                    </select>
+                                    <select name="" id="put_store_name">
+                                        <option>选择门店</option>
+                                    </select>
+                                </div>
+                                <form role="form" name="put_store" id="put_store">
+                                    <div class="box box-info">
+                                        <h5 class="box-title" style="margin-top: 2PX;">基本属性</h5>
+                                        <div class="inputbox">
+                                            <input type="text" class="form-control rounded-0" placeholder="名称" name="store_name">
+                                            <input type="text" name="store_id" value="0" style="display: none;" >
+                                            <select name="cd_area" id="update_cd_area">
+                                            </select>
+                                            <select name="is_24h">
+                                                <option value="1">24小时</option>
+                                                <option value="0">7-23</option>
+                                                <option value="2">7-01</option>
+                                            </select>
+                                            <select name="is_smoke">
+                                                <option value="1">有烟</option>
+                                                <option value="0">无烟</option>
+                                            </select>
+                                            <br />
+                                            <label for="">坐标X：</label>
+                                            <input class="border-blue" name="store_x" type="text" id="area_x"><br />
+                                            <label for="">坐标Y：</label>
+                                            <input class="border-blue" name="store_y" type="text" id="area_y">
+                                        </div>
+                                    </div>
+                                    <div class="box box-info">
+                                        <h5 class="box-title">踩点数据</h5>
+                                        <div class="inputbox">
+                                            <input class="form-control rounded-0" placeholder="单量" name="store_orders" type="text">
+                                            <input class="form-control rounded-0" placeholder="营业额" name="store_turnover" type="text">
+                                            <input class="form-control rounded-0" placeholder="对标单量" name="contrast_orders" type="text" id=""><br>
+                                            <input class="form-control rounded-0" placeholder="面积" name="store_size" type="text" id="">
+                                            <input class="form-control rounded-0" placeholder="员工数" name="store_waiters" type="text" id="">
+                                            <input class="form-control rounded-0" placeholder="门头宽" name="door_header" type="text" id="">
+                                        </div>
+                                        <p class="help-block"></p>
+                                    </div>
+                                </form>
+                                <div class="box-footer">
+                                    <button type="button" id="update_cd_store" class="btn btn-primary">修改</button>
+                                </div>
+                            </div>
+                        
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer">
+                      踩点数据可以不填写,默认为0
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+      <!-- 子页面主体内容结束 -->
+    </div>
+    </div>
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+    var map_data = []
+    var area_list = []
+    var store_list = []
+    //门店标签
+    all_label = {}
+    // 根据屏幕宽度调整头部报表展示方式
+    window_width = document.body.clientWidth
+    window_height = document.body.clientHeight
+    map_box = document.getElementById("map_box")
+    map_box.style.height = (window_height-630)+'px';
+
+    var map = new BMapGL.Map('map_box'); // 创建Map实例
+    map.centerAndZoom(new BMapGL.Point(104.12331316600958,30.640947174653434), 15); // 初始化地图,设置中心点坐标和地图级别
+    map.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
+    // map.setMapType(BMAP_EARTH_MAP);//卫星地图模式
+    map.setMapType(BMAP_NORMAL_MAP);//标志地图模式
+    map.addEventListener('click', function (e) {
+            if(e.overlay){
+                return;
+            }
+            copy_zb(document.getElementById('area_x'),document.getElementById('area_y'),e.latlng.lng,e.latlng.lat)
+        });
+    xs_area = 0
+    xs_store = 0
+    function set_area(){
+        for(item of area_list){
+            add_fangjia(map,item.point,item.name,'<b style="color:#f00;">'+item.price+'</b>',true)
+        }
+        xs_area = 1
+    }
+    function set_store(){
+        map_add_stores(map)
+        xs_store = 1
+    }
+    var fid_label
+    function set_label(f_label){
+        store_label = $('#store_label')
+        store_label.html('')
+        // 显示标签
+        $.each(f_label, function(key,item){
+            if(key == 0){
+                return
+            }
+            new_p = $('<p>')
+            new_p.append('<label>'+f_label[0][item[0].f_id-1].label_name+': </label>')
+            $.each(item, function(k, value){
+                new_p.append('<label title="'+value.label_notes+'"><i><input type="checkbox" id="'+value.id+'" name="store_label">'+value.label_name+'</i></label>')
+            })
+            store_label.append(new_p)            
+        })
+        fid_label = f_label
+    }
+
+
+    $(function(){
+        get_area()  // 获取区域数据
+        for(item of map_data[1]){
+            area_list.push({name:item.area_name, point:[item.area_x, item.area_y], price:item.odds, id:item.id})
+            // add_fangjia(map,[item.area_x, item.area_y],item.area_name,'<b style="color:#f00;">'+item['odds']+'</b>',true)
+        }
+
+        get_label() // 获取门店标签
+        
+        set_store() // 地图显示门店
+        select_area = $('#cd_area')
+
+        // 表单区域下拉框
+        put_select_area = $('#put_cd_area')
+        update_select_area = $('#update_cd_area')
+        $.each(area_list, function(key, val){
+            new_option = '<option value="'+val.id+'">'+val.name+'</option>'
+            select_area.append(new_option)
+            put_select_area.append(new_option)
+            update_select_area.append(new_option)
+        })
+
+        // 组装数据 {区域ID:[门店列表]}
+        // 组装数据 {门店ID:门店信息}
+        store_in_area = {}
+        store_dict = {}
+        for(item of map_data[0]){
+            if(store_in_area[item.cd_area] == undefined){
+                store_in_area[item.cd_area] = []
+            }
+            store_dict[item.store_id] = item
+            store_in_area[item.cd_area].push(item)
+        }
+        function get_store_list(){
+            stores = store_in_area[this.value]
+            store_select = $('#put_store_name')
+            store_select.find('option').remove()
+            store_select.append(new Option('选择门店', 0))
+            for(item of stores){
+                store_select.append(new Option(item.store_name, item.store_id))
+            }
+            first_store = stores[0]
+            map.centerAndZoom(new BMapGL.Point(first_store.store_x,first_store.store_y), 17);
+        }
+        function set_value(){
+            store_value = store_dict[this.value]
+            put_store_input = $('#put_store').find('input')
+            put_store_select = $('#put_store').find('select')
+            // 设置input 的值
+            put_store_input.each(function(key, element){
+                element.value = store_value[element.name]
+            })
+            // 设置select的值
+            put_store_select.each(function(key,element){
+                element.value = store_value[element.name]
+            })
+            set_label(fid_label)
+            // 设置checkbox的值
+            if(store_value['cd_label'].length > 0){
+                label_list = store_value['cd_label'].split(',')
+                $.each(label_list, function(key, value){
+                    $('#'+value).prop('checked', true)
+                })
+            }
+            
+        }
+        $('#put_cd_area').bind('change', get_store_list)  
+        $("#put_store_name").bind('change', set_value)
+    })
+</script>
+{% endblock %}

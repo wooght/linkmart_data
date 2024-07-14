@@ -1,15 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | Tabbed IFrames</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-  <link rel="stylesheet" href="/static/plugins/fontawesome-free/css/all.min.css">
-  <link rel="stylesheet" href="/static/dist/css/adminlte.min.css">
-  <link rel="stylesheet" href="/static/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-</head>
-<body class="hold-transition sidebar-mini layout-fixed" data-panel-auto-height-mode="height">
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
   <div class="wrapper">  
     <div class="content-wrapper">
       <!-- 子页面头部 -->
@@ -35,13 +26,11 @@
           <div class="row">
             <div class="col-12 col-sm-6 col-md-3">
               <div class="info-box">
-                <span class="info-box-icon bg-info elevation-1"><i class="fas fa-cog"></i></span>
+                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
   
                 <div class="info-box-content">
-                  <span class="info-box-text">CPU Traffic</span>
-                  <span class="info-box-number">
-                    10
-                    <small>%</small>
+                  <span class="info-box-text"><b style="font-size: 20px;" id="turnover_header">Turnover</b></span>
+                  <span class="info-box-number"><small>同比:<b id="th_same"></b> 环比:<b id="th_last"></b></small>
                   </span>
                 </div>
                 <!-- /.info-box-content -->
@@ -51,11 +40,12 @@
             <!-- /.col -->
             <div class="col-12 col-sm-6 col-md-3">
               <div class="info-box mb-3">
-                <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-up"></i></span>
+                <span class="info-box-icon bg-danger elevation-1"><i class="fas fas fa-tag"></i></span>
   
                 <div class="info-box-content">
-                  <span class="info-box-text">Likes</span>
-                  <span class="info-box-number">41,410</span>
+                  <span class="info-box-text"><b style="font-size: 20px;" id="orders_header">OrderForm<img width="20" src="/static/dist/img/loading.gif"></b></span>
+                  <span class="info-box-number"><small>同比:<b id="od_same"></b> 环比:<b id="od_last"></b></small>
+                  </span>
                 </div>
                 <!-- /.info-box-content -->
               </div>
@@ -68,68 +58,563 @@
   
             <div class="col-12 col-sm-6 col-md-3">
               <div class="info-box mb-3">
-                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-shopping-cart"></i></span>
+                <span class="info-box-icon bg-success elevation-1"><i class="fas fa-dollar-sign"></i></span>
   
                 <div class="info-box-content">
-                  <span class="info-box-text">Sales</span>
-                  <span class="info-box-number">760</span>
+                  <span class="info-box-text"><b style="font-size: 20px;" id="price_header">Price<img width="20" src="/static/dist/img/loading.gif"></b></span>
+                  <span class="info-box-number"><small>同比:<b id="price_same"></b> 环比:<b id="price_last"></b></small>
+                  </span>
                 </div>
                 <!-- /.info-box-content -->
               </div>
               <!-- /.info-box -->
             </div>
             <!-- /.col -->
+
             <div class="col-12 col-sm-6 col-md-3">
               <div class="info-box mb-3">
-                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-users"></i></span>
+                <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-chart-bar"></i></span>
   
                 <div class="info-box-content">
-                  <span class="info-box-text">New Members</span>
-                  <span class="info-box-number">2,000</span>
+                  <span class="info-box-text"><b style="font-size: 20px;" id="gross_header">GrossMargin</b></span>
+                  <span class="info-box-number"><small>同比:<b id="gross_same"></b> 环比:<b id="gross_last"></b></small>
+                  </span>
                 </div>
                 <!-- /.info-box-content -->
               </div>
               <!-- /.info-box -->
             </div>
             <!-- /.col -->
+
           </div>
           <!-- /.row -->
         </div><!-- /.container-fluid -->
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="main" style="width:100%;height:500px; border:0px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="month_average" style="width:100%;height:500px; border:0px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="profit_row" style="display: none;" class="row">
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="profit" style="width:100%;height:500px; border:1px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="profit_contrast" style="width:100%;height:500px; border:1px solid red;float:left;"></div>
+              </div>
+            </div>
+          </div>  
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="main_week_hours" style="width: 100%; height: 300px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="card">
+              <div class="card-header border-transparent">
+                <h3 class="card-title"></h3>
+                <div class="card-tools">
+                </div>
+              </div>
+              <div class="card-body p-0">
+                <div id="main_hours" style="width: 100%; height: 350px;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6" id="orders_chart" style="width:100%;height:500px; border:1px solid red;float:left;"></div>
+          <div class="col-md-6" id="price_chart" style="width:100%;height:500px; border:1px solid red;float:left;"></div>
+        </div>
       </section>
       <!-- 子页面主体内容结束 -->
     </div>
   </div>
-<script src="/static/plugins/jquery/jquery.min.js"></script>
-<script src="/static/plugins/jquery-ui/jquery-ui.min.js"></script>
-<script src="/static/dist/js/jquery.cookie.js"></script>
-<script>
-  $.widget.bridge('uibutton', $.ui.button)
-  $.ajaxSetup({
-        beforeSend:function(xhr){
-            xhr.setRequestHeader('Authorization', 'Token '+$.cookie('uuid'))
-        }
-    })
-  $("#user").click(function(){
-    $.ajax({
-      url:'/logout/',
-      method:'GET',
-      success:function(){
-        alert('退出成功')
-        window.location.href = '/login'
-      },
-      error:function(data){
-        alert(data)
+  {% endblock %}
+  {% block script %}
+  <script src="/static/dist/js/echarts.js"></script>
+  <script type="text/javascript">
+    // 营业额图表
+    function turnover_chart(data){
+      // 提取数据
+      date_list = []    
+      turnover_list = []
+      turnover_average = []
+      turnover_rolling = []
+      gross_margin = []
+      $.each(data, function(key, row){
+        date_list.push(row.date)
+        turnover_list.push(row.turnover)
+        turnover_average.push(row.mean)
+        turnover_rolling.push(row.rolling_30)
+        gross_margin.push((row.gross_margin*100).toFixed(2))
+      })
+      $('#turnover_header').text(turnover_average[turnover_average.length-1])
+      // 营业数据
+      var myChart = echarts.init(document.getElementById('main'));
+        option = {
+            title: {
+                text: 'TURNOVER'
+            },
+              tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                  type: 'shadow',
+                  label: {
+                    show: true
+                  }
+                }
+              },
+              legend: {
+                data: ['单位万', '营业额', '平均值', '月均值', '毛利率'],
+                itemGap: 5,
+                right:'1%'
+              },
+              grid: {
+                y: '12%',
+                x: '1%',
+                x2: '2%',
+                y2: '5%',
+                containLabel: true
+              },
+              xAxis: [
+                {
+                  type: 'category',
+                  data: date_list
+                }
+              ],
+              yAxis: [
+                {
+                  type: 'value',
+                  name: '单位万',
+                  axisLabel: {
+                    formatter: function (a) {
+                      a = +a;
+                      return isFinite(a) ? echarts.format.addCommas(+a / 10000) : '';
+                    }
+                  },
+                  max:20000,
+                },
+                {
+                    type: 'value',
+                    name: '毛利率',
+                    max: 32,
+                    min: 22
+                }
+              ],
+              dataZoom: [
+                {
+                  show: true,
+                  start: 60,
+                  end: 100,
+                  height:10,
+                  bottom: '3%'
+                },
+                {
+                  type: 'inside',
+                  start: 94,
+                  end: 100
+                },
+                {
+                  show: true,
+                  yAxisIndex: 0,
+                  filterMode: 'empty',
+                  width: 10,
+                  height: '80%',
+                  showDataShadow: false,
+                  right: '3%'
+                }
+              ],
+              series: [
+                {
+                    name: '营业额',
+                    type: 'bar',
+                    data: turnover_list,
+                    yAxisIndex:0
+                },
+
+                {
+                    name: '平均值',
+                    type: 'line',
+                    data: turnover_rolling,
+                    yAxisIndex: 0,
+                    color:'#61a0a8'
+                },
+
+                {
+                    name: '月均值',
+                    type: 'line',
+                    data: turnover_average,
+                    yAxisIndex: 0,
+                    color:'#d48265'
+                },
+                {
+                    name: '毛利率',
+                    type: 'line',
+                    data: gross_margin,
+                    yAxisIndex: 1,
+                    color:'#ca8622'
+                }
+              ]
+            };
+        myChart.setOption(option);
+    }
+
+    // 涨跌图表
+    function contrast(data){
+      //提取数据
+      date_list = []
+      month_contrast = []
+      year_contrast = []
+      $.each(data, function(key, row){
+        date_list.push(row.month)
+        month_contrast.push(row.month_contrast)
+        year_contrast.push(row.year_contrast)
+      })
+      $("#th_same").text(month_contrast[month_contrast.length - 1].toFixed(2))
+      $('#th_last').text(year_contrast[year_contrast.length - 1].toFixed(2))
+      // 月均涨幅图
+      var averageChart = echarts.init(document.getElementById('month_average'));
+        var option = {
+            title: {
+                text: 'CONTRAST'
+            },
+            tooltip: {},
+            legend: {
+                data:['环比','同比'],
+                right:0,
+            },
+            xAxis: {
+                data: date_list
+            },
+            dataZoom: [
+                {
+                  show: true,
+                  start: 40,
+                  end: 100,
+                  height: 10,
+                },
+                {
+                  type: 'inside',
+                  start: 94,
+                  end: 100
+                },
+                {
+                  show: true,
+                  yAxisIndex: 0,
+                  filterMode: 'empty',
+                  width: 10,
+                  height: '80%',
+                  showDataShadow: false,
+                  left: '93%'
+                }
+              ],
+            yAxis: {},
+            series: [{
+                name: '同比',
+                type: 'bar',
+                data:year_contrast
+                },{
+                name: '环比',
+                type: 'bar',
+                data: month_contrast
+                },]
+        };
+        averageChart.setOption(option);
+    }
+    // 毛利额图表
+    function prifit_chart(data){
+        // 毛利额月比较图
+        // 提取数据
+        date_list = []
+        profit_list = []
+        year_contrast = []
+        month_contrast = []
+        $.each(data, function(key, row){
+          date_list.push(row.month)
+          profit_list.push(row.gross_profit)
+          year_contrast.push(row.year_contrast)
+          month_contrast.push(row.month_contrast)
+        })
+        var grossChart = echarts.init(document.getElementById('profit'));
+        var option = {
+            title: {
+                text: 'PROFIT'
+            },
+            tooltip: {},
+            xAxis: {
+                data: date_list
+            },
+            yAxis: {},
+            series: [{
+                name: '毛利额',
+                type: 'bar',
+                data: profit_list
+                },]
+        };
+        grossChart.setOption(option);
+        var grossChart = echarts.init(document.getElementById('profit_contrast'));
+        var option = {
+            title: {
+                text: 'PROFIT CONTRAST'
+            },
+            tooltip: {},
+            dataZoom: [
+                {
+                  show: true,
+                  start: 40,
+                  end: 100,
+                  height: 10,
+                },
+                {
+                  type: 'inside',
+                  start: 94,
+                  end: 100
+                },
+                {
+                  show: true,
+                  yAxisIndex: 0,
+                  filterMode: 'empty',
+                  width: 10,
+                  height: '80%',
+                  showDataShadow: false,
+                  left: '93%'
+                }
+              ],
+            xAxis: {
+                data: date_list
+            },
+            yAxis: {},
+            series: [{
+                name: '同比',
+                type: 'bar',
+                data: year_contrast
+                },{
+                  name:'环比',
+                  type: 'bar',
+                  data: month_contrast
+                }]
+        };
+        grossChart.setOption(option);
+    }
+    // 订单走势图表
+    function orders_charts(data){
+        
+        all_date = []       // 所有日期
+        all_nums = []       // 所有销量
+        month_average = []  // 月平均值
+        all_price = []
+        price_mean = []
+        $.each(data, function(key, val){
+            all_date.push(val['date'])
+            all_nums.push(val['form_money'])
+            month_average.push(val['orders_mean'])
+            all_price.push(val['price'])
+            price_mean.push(val['price_mean'])
+        })
+        // 订单图表
+        var myChart = echarts.init(document.getElementById('orders_chart'));
+        var option = {
+            title: {
+                text: 'ORDERS'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                  type: 'shadow',
+                  label: {
+                    show: true
+                  }
+                }
+              },
+            legend: {
+                data:['订单数','月均值'],
+                right:10,
+                icon:'rect'
+            },
+            grid: {
+                'left':'8%',
+                'top': '10%',
+                'right': '5%',
+                'bottom': '6%'
+            },
+            xAxis: {
+                data: all_date
+            },
+            yAxis: {},
+            series: [{
+                name: '订单数',
+                type: 'bar',
+                data: all_nums
+                },
+                {
+                name: '月均值',
+                type: 'line',
+                data: month_average
+                }]
+        };
+        myChart.setOption(option);
+        // 价格图表
+        var myChart = echarts.init(document.getElementById('price_chart'));
+        var option = {
+            title: {
+                text: 'PRICE'
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                  type: 'shadow',
+                  label: {
+                    show: true
+                  }
+                }
+              },
+            legend: {
+                data:['单价','月均值'],
+                right:10,
+                icon:'rect'
+            },
+            grid: {
+                'left':'8%',
+                'top': '10%',
+                'right': '5%',
+                'bottom': '6%'
+            },
+            xAxis: {
+                data: all_date
+            },
+            yAxis: {},
+            series: [{
+                name: '单价',
+                type: 'bar',
+                data: all_price
+                },
+                {
+                name: '月均值',
+                type: 'line',
+                data: price_mean
+                }]
+        };
+        myChart.setOption(option);
+        
+    }
+    // 7* 24小时图表
+    function hour_7_24(week_hour){
+      // 7*24小时图表
+      week_data = []
+      $.each(week_hour, function(key, row){
+        $.each(row, function(k,v){
+          // console.log(key+','+k+','+v)  //打印日志
+          week_data.push([key, k, v])
+        })
+      })
+      var main_week_hours = echarts.init(document.getElementById('main_week_hours'));
+        hotmap(main_week_hours,week_data, 'WEEK 7*24')
+    }
+    // 24小时图表
+    function hour_charts(data){
+      // 基于小时数据图标
+      var hours_chart = echarts.init(document.getElementById('main_hours'));
+      last_month = []
+      current_month = []
+      same_month = []
+      time_list = []
+      for(var i=0; i<24; i++){
+        time_list.push(i)
+        same_month.push(data[0][i])
+        last_month.push(data[1][i])
+        current_month.push(data[2][i])
       }
-    })
-  })
-</script>
-<script src="/static/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/static/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
-<script src="/static/dist/js/adminlte.js"></script>
-<script type="text/javascript">
-  $(function(){
-    $('#index_nav').click();
-  })
-</script>
-</body>
-</html>
+      chart_data = [
+          {name: '上月',type: 'line',data: last_month,areaStyle: {}},
+          {name: '同期',type: 'line',data: same_month,areaStyle: {}},
+          {name: '本月',type: 'line',data:current_month,areaStyle: {}}
+      ]
+      set_charts(hours_chart, chart_data,time_list,'24小时趋势',['上月','同期','本月'])
+    }
+    // TURNOVER图表入口
+    function charts_api(data){
+        turnover_chart(data.turnover_data)
+        contrast(data.contrast_data)
+        if(data['profit_data'] != null){
+          $('#profit_row').show()
+          prifit_chart(data['profit_data'])
+        }
+        //毛利率 header contrast
+        gross_ct = data['contrast_gross']
+        $('#gross_header').text(gross_ct[gross_ct.length-1].gross_margin.toFixed(2))
+        $('#gross_last').text(gross_ct[gross_ct.length-1].month_contrast.toFixed(2))
+        $('#gross_same').text(gross_ct[gross_ct.length-1].year_contrast.toFixed(2))
+        // API顺序执行
+        get_data('/orders/classify_orders/', {}, orders_api)
+    }
+    //ORDERS 图表入口
+    function orders_api(data){
+        orders_charts(data['chart_data'])
+        hour_7_24(data['week_hour'])
+        hour_charts(data['orders_hour'])
+        orders_ct = data['orders_ct']
+        price_ct = data['price_ct']
+        // 订单header contrast
+        $('#orders_header').text(orders_ct[orders_ct.length-1].orders_mean.toFixed(0))
+        $('#od_last').text(orders_ct[orders_ct.length-1].month_contrast.toFixed(2))
+        $('#od_same').text(orders_ct[orders_ct.length-1].year_contrast.toFixed(2))
+        //单价header contrast
+        $('#price_header').text(price_ct[price_ct.length - 1].price_mean.toFixed(2))
+        $('#price_last').text(price_ct[price_ct.length - 1].month_contrast.toFixed(2))
+        $('#price_same').text(price_ct[price_ct.length - 1].year_contrast.toFixed(2))
+    }
+    // 获取营业额数据
+    get_data('/turnover/index/', {}, charts_api)
+  </script>
+  {% endblock %}

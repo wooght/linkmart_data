@@ -1,0 +1,6 @@
+# git排除忽略的文件
+*.pyc
+/mysql/
+/.idea/
+*.sdi
+*.zip

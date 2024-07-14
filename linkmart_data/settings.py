@@ -78,6 +78,9 @@ REST_FRAMEWORK = {
     # 分页
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+    # 搜索
+    'DEFAULT_FILTER_BACKENDS': ['rest_framework.filters.SearchFilter',],
+    # 'SEARCH_PARAM': 's',
 }
 AUTH_USER_MODEL = 'login.UserInfo'
 MIDDLEWARE = [
@@ -95,7 +98,7 @@ ROOT_URLCONF = 'linkmart_data.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'desktop/templates/')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,7 +127,7 @@ DATABASES = {
         'NAME': 'linkmart',
         'USER': 'root',
         'PASSWORD': 'wooght565758',
-        'HOST': 'localhost',
+        'HOST': 'mysql',
         'PORT': '3306',
         'CHARSET': 'utf8mb4',  # 支持表情，及中文4个字节
     }

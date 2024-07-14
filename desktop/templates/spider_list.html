@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% block title %} 门店管理 {% endblock %}
+{% block body %}
+  <div class="wrapper">  
+    <div class="content-wrapper">
+      <!-- 子页面头部 -->
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <div class="row">
+                <div class="col-md-8 offset-md-2">
+                    <form action="simple-results.html">
+                        <div class="input-group">
+                            <input id="search_input" type="search" class="form-control form-control-lg" placeholder="名称或条码进行搜索">
+                            <div class="input-group-append">
+                                <button type="button"id="search_submit" class="btn btn-lg btn-default">
+                                    <i class="fa fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div><!-- /.col -->
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-right">
+              </ol>
+            </div><!-- /.col -->
+          </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+      </div>
+      <!-- 子页面头部结束 -->
+      
+      <!-- 子页面主体内容 -->
+      <section class="content">
+        <div class="row">
+          <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header border-transparent">
+                      <div class="row">
+                        <div class="col-sm-6">
+                          <select name="" id="top_classify">
+                              <option value="0">最近更新</option>
+                          </select>
+                          >>
+                          <select name="" id="children_classify">
+                            <option value="0">最近更新</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body p-0">
+                      <div class="table-responsive">
+                          <table class="table m-0" id="user_list">
+                            <thead>
+                              <tr>
+                                  <th>ID</th>
+                                  <th>名称</th>
+                                  <th>价格</th>
+                                  <th>售价</th>
+                                  <th><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">crawl</button></th>
+                              </tr>
+                            </thead>
+                            <tbody id="content_list">
+                              <tr>
+                                  <td><a href="pages/examples/invoice.html">SKU spider</a></td>
+                                  <td>Call of Duty IV</td>
+                                  <td><span class="badge badge-success">Shipped</span></td>
+                                  <td></td>
+                                  <td><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">crawl</button></td>
+                              </tr>
+                              <tr>
+                                <td>
+                                    #
+                                </td>
+                                <td>
+                                    
+                                </td>
+                                <td>
+                                </td>
+                                <td class="project_progress">
+                                    <div class="progress progress-sm">
+                                        <div class="progress-bar bg-green" role="progressbar" aria-valuenow="57" aria-valuemin="0" aria-valuemax="100" style="width: 57%">
+                                        </div>
+                                    </div>
+                                    <small>
+                                        57% Complete
+                                    </small>
+                                </td>
+                                <td class="project-state">
+                                    <span class="badge badge-success">Success</span>
+                                </td>
+                                <td class="project-actions text-right">
+                                    <a class="btn btn-primary btn-sm" href="#">
+                                        <i class="fas fa-folder">
+                                        </i>
+                                        View
+                                    </a>
+                                    <a class="btn btn-info btn-sm" href="#">
+                                        <i class="fas fa-pencil-alt">
+                                        </i>
+                                        Edit
+                                    </a>
+                                    <a class="btn btn-danger btn-sm" href="#">
+                                        <i class="fas fa-trash">
+                                        </i>
+                                        Delete
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                    <!-- /.table-responsive -->
+                    </div>
+                    <!-- /.card-body -->
+                    <div class="card-footer clearfix">
+                    <a onclick="get_goods(0)" class="btn btn-sm btn-info float-left">上一页</a>
+                    <a onclick="get_goods(1)" id="next_page" class="btn btn-sm btn-secondary float-right">下一页</a>
+                    </div>
+                    <!-- /.card-footer -->
+                </div>
+          </div>
+          <div class="col-md-4">
+              <div class="card bg-gradient-info">
+                <div class="card-header">
+                    <h3 class="card-title">标签</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                        <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="card card-outline card-primary">
+                      <iframe id="toprint_html" height="300" name="print_iframe" src="/desktop/barcode_toprint?good_id=71700"></iframe>
+                      </div>
+                </div>
+              </div>
+          </div>
+        </div>
+      </section>
+      <!-- 子页面主体内容结束 -->
+    </div>
+  </div>
+
+{% endblock %}
+{% block script %}
+<script type="text/javascript">
+  var classify_data = Object
+  var bind = false
+  function set_top_classify(classify_data){
+    $.each(classify_data['top_classify'],function(key, val){
+      select_option = $("<option></option>")
+      select_option.val(val)
+      select_option.text(key)
+      $("#top_classify").append(select_option)
+    })
+    classify_data = classify_data
+    if(!bind){
+      bind_change(classify_data)
+    }
+  }
+  // 获取类别
+  get_data(url='/goods/classify/', data={}, set_top_classify)
+  // 默认上下页
+  var next_page = '/goods/classify_goods/'
+  var previous = '/goods/classify_goods/'
+  function bind_change(classify_data){
+    bind = true
+    $("#top_classify").bind('change', function(){
+      classify_id = this.value
+      $("#children_classify").html('')
+      if(classify_id in classify_data['children']){
+        $.each(classify_data['children'][classify_id], function(name, val){
+          select_option = $("<option></option>")
+          select_option.val(val)
+          select_option.text(name)
+          $("#children_classify").append(select_option)
+        })
+      }else{
+        $('#children_classify').append('<option value='+this.value+'>'+$(this).find('option:selected').text()+'</option>')
+      }
+      next_page = '/goods/classify_goods/'
+      previous = '/goods/classify_goods/'
+      get_goods()
+    })
+  }
+
+  $("#children_classify").change(function(){
+    next_page = '/goods/classify_goods/'
+    previous = '/goods/classify_goods/'
+    get_goods()
+  })
+  function goods_to_list(data){
+    if('results' in data){
+      next_page = data['next']
+      previous = data['previous']
+      data = data['results']
+    }else{
+      next_page = null
+      previous = null
+    }
+    $('#content_list').html('')
+    $.each(data, function(key, goods){
+      tr = $('<tr></tr>')
+      tr.append('<td>'+goods['id']+'</td>')
+      tr.append('<td>'+goods['name']+'</td>')
+      tr.append('<td>'+goods['bar_code']+'</td>')
+      tr.append('<td>'+goods['price']+'</td>')
+      tr.append('<td>'+
+        '<a onclick="get_function('+goods['id']+',\'\')" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt">标签</a>'+
+        '<a onclick="get_function('+goods['id']+',\'yan\')" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt">烟标签</a>'+
+          '</td>')
+      $('#content_list').append(tr)
+    })
+  }
+  function get_goods(action=1){
+    categoryId = $('#children_classify').val()
+    page = action===0 ? previous : next_page
+    if(page==null){return}
+    data = page.indexOf('categoryId') !== -1 ? {} : {'categoryId':categoryId}
+
+    all_goods = get_data(page, data=data, goods_to_list)
+  }
+
+  function get_function(good_id,bar_style){
+            the_iframe = document.getElementById("toprint_html")
+            the_iframe.contentWindow.get_barcode(good_id, bar_style)
+        }
+  function to_search(){
+    s_words = $('#search_input').val()
+    if(s_words.length < 2){return}
+    goods_data = get_data(url='/goods/search_goods/', data={'search':s_words}, goods_to_list)
+  }
+  $(function(){
+    $("#crawl").bind('click', run_spider)
+    $('#search_submit').bind('click', to_search)
+    setTimeout(get_goods, 1000)
+  })
+</script>
+{% endblock%}

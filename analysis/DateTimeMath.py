@@ -1,0 +1,192 @@
+# -- coding: utf-8 -
+"""
+@project    :HandBook
+@file       :DateTimeMath.py
+@Author     :wooght
+@Date       :2024/3/13 17:13
+@Modify     :2024/6/27 10:10
+@Content    : 日期计算模块
+"""
+import time, datetime
+import random
+
+class DateTimeMath:
+    time_stamp = time.time()  # 当前时间戳
+    time_struct = time.localtime()  # 当前时间结构
+    datetime_model = "%Y-%m-%d %H:%M:%S"  # 完整时间格式
+    date_model = "%Y-%m-%d"  # 日期格式
+    time_model = "%H:%M:%S"  # 时间格式
+    time_tpl = time.strftime(datetime_model, time_struct)  # 当前输出时间
+    now_date = time.strftime(date_model, time_struct)  # 当前输出日期
+
+    def __init__(self, date_model='%Y-%m-%d', time_model='%H:%M:%S'):
+        self.date_model = date_model
+        self.time_model = time_model
+        self.datetime_model = date_model + ' ' + time_model
+        self.now_date = time.strftime(self.date_model, self.time_struct)
+        self.now_time = time.strftime(self.time_model, self.time_struct)
+
+    def __str__(self):
+        """ 实例化后默认得到当前日期时间 """
+        return str(self.time_tpl)
+
+    def pass_day(self, start_date, end_date=''):
+        """ 返回两个日期相差天数 """
+        start_struct = self.str_to_struct(start_date)
+        start_stamp = self._mktime(start_struct)
+        if not end_date:
+            cha_stamp = self.time_stamp - start_stamp
+        else:
+            end_struct = self.str_to_struct(end_date)
+            end_stamp = self._mktime(end_struct)
+            cha_stamp = end_stamp - start_stamp
+        return int(cha_stamp / (24 * 3600))
+
+    def is_leap(self, year=0):
+        """是否闰年"""
+        year = self.time_struct.tm_year if not year else year
+        return (year % 4 == 0 and year % 100 != 0) or year % 400 == 0
+
+    def month_days(self, year=0, month=0):
+        """ 返回当月天数 """
+        if not year:
+            year = self.time_struct.tm_year
+            month = self.time_struct.tm_mon
+        if month in [1, 3, 5, 7, 8, 10, 12]:
+            return 31
+        elif month in [4, 6, 9, 11]:
+            return 30
+        elif month == 2:
+            return 28 if not self.is_leap(year) else 29
+
+    def date_list(self, start_date, end_state=0):
+        """
+            返回日期序列
+            RETURN: ["%Y-%m-%d"....]
+        """
+        if not end_state: end_state = self.now_date
+        start_stamp = self.str_to_stamp(start_date)
+        pass_days = self.pass_day(start_date, end_state)
+        for day in range(pass_days + 1):
+            yield time.strftime(self.date_model, time.localtime(start_stamp + day * 3600 * 24))
+
+    def get_day(self, target_date):
+        """
+            返回给定日期的年月日周
+            RETURN:{Y:num,m:num,d:num,wk:num}
+        """
+        if not target_date: target_date = self.now_date
+        return self.str_to_struct(target_date)
+
+    def str_to_struct(self, str_date):
+        """
+        返回时间结构
+        :param str_date: 输入时间格式 2020-10-10 10:10:10 或者 2020-10-10
+        :return: 时间结构
+        """
+        t_model = self.datetime_model if len(str_date) > 10 else self.date_model
+        time_struct = time.strptime(str_date, t_model)
+        return time_struct
+
+    def str_to_stamp(self, str_date):
+        """
+            字符串转时间戳
+        """
+        return self._mktime(self.str_to_struct(str_date))
+
+    def stamp_to_str(self, stamp):
+        """
+            时间戳转字符串
+        """
+        return time.strftime(self.datetime_model, time.localtime(stamp))
+
+    def run_time(self):
+        return time.time() - self.time_stamp
+
+    def wait_random(self, num):
+        random_num = random.randint(1, num)
+        time.sleep(random_num)
+        return random_num
+
+    def real_time(self):
+        """
+        返回实时时间
+        :return: %H:%M:%S
+        """
+        return time.strftime(self.time_model, time.localtime())
+
+    def before_day(self, days=30, is_zero=False):
+        """
+        得到给定days前的日期和时间戳
+        Parameters
+        ----------
+        days 默认30天
+        Returns [date,stamp]
+        -------
+        """
+        before_stamp = self.time_stamp - 24 * 3600 * days
+        before_datetime = self.stamp_to_str(before_stamp)
+        date = before_datetime.split(' ')[0]
+        date_stamp = self.str_to_stamp(before_datetime if not is_zero else date)
+        return [date, int(date_stamp)]
+
+    def _mktime(self, struct):
+        return time.mktime(struct)
+
+class WDateTime(object):
+    today = datetime.datetime.today()
+    current_month = ''
+
+    def contrast_list(self, current_date=None):
+        """
+            返回同比,环比的月日期
+            params current_date [str, format] :['2021-02-02', 'Y%-m%-d%]
+            return {去年同期年月:日期,上月年月:日期,本月:日期}
+        """
+        if current_date:
+            current_date = datetime.datetime.strptime(current_date[0], current_date[1])
+        else:
+            current_date = self.today
+        self.current_month = current_date.strftime('%Y-%m')
+        # 上月 本月第一天 减去一天,就得到上月最后一天,及可得到上月月份
+        last_month_day = datetime.datetime(current_date.year, current_date.month, 1) - datetime.timedelta(days=1)
+        # 去年同月 1日
+        same_year_day = datetime.datetime(current_date.year - 1, current_date.month, 1)
+        return {same_year_day.strftime('%Y-%m'): same_year_day,
+                last_month_day.strftime('%Y-%m'): last_month_day,
+                self.current_month: current_date}
+
+    def before_date(self,days, current_date=None):
+        """
+            返回之前的日期
+            params days int,current_date datetime
+            return datetime
+        """
+        current_day = current_date if current_date else self.today
+        return current_day - datetime.timedelta(days=days)
+
+
+WDate = DateTimeMath()
+if __name__ == "__main__":
+    print('类显示:', WDate)
+    print("今天是", WDate.time_struct.tm_mday, "号")
+    print("现在时间是:", WDate.now_time)
+    print("当前时间戳是:", WDate.time_stamp)
+
+    print('2024-12-28 00:00:00 字符串转struct', WDate.str_to_struct("2024-12-28 00:00:00"))
+    print('两时间差:', WDate.pass_day('2018-10-07 0:0:0', "2024-03-14 0:0:0"), "天")
+    print('2018-10-07 0:0:0 转时间戳stamp', WDate.str_to_stamp('2018-10-07 0:0:0'))
+    print('给定时间戳得到日期:', WDate.stamp_to_str(1538841600))
+    print('2020是闰年吗:', WDate.is_leap(2024))
+    print("2018年2月有多少天:", WDate.month_days(2018, 2))
+    date_list = WDate.date_list('2022-10-28')
+    print('两个日期间的日期序列:', list(date_list))
+    date_list = WDate.date_list('2024-3-10')
+    print("下一天是:", date_list.__next__())
+    print('2022-10-7是星期几:', WDate.get_day('2022-10-10').tm_wday)
+    print("共运行时间:", WDate.run_time())
+    print('30天之前:', WDate.before_day())
+    Wdate2 = DateTimeMath('%Y/%m/%d', '%H:%M')
+    print(Wdate2.now_date)
+    print('给定时间戳得到日期:', Wdate2.stamp_to_str(1538841600))
+    print('昨天:', Wdate2.before_day(1))
