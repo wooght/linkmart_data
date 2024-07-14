@@ -12,12 +12,13 @@ from scrapy.utils.project import get_project_settings
 from celery import Celery
 from celery.schedules import crontab
 # 工作目录定位到当前目录
-import os,sys
+import os, sys, redis, time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from app_spider import models
 
 # 配置celery
-backend = 'redis://192.168.101.101:6379/1'    # 存储结果
-broker = 'redis://192.168.101.101:6379/2'     # 消息中间件
+backend = 'redis://{}:{}/1'.format(models.REDIS_HOST,models.REDIS_PORT)    # 存储结果
+broker = 'redis://{}:{}/2'.format(models.REDIS_HOST, models.REDIS_PORT)     # 消息中间件
 celery_spider = Celery(
     'celery_object',
     backend=backend,
@@ -26,6 +27,10 @@ celery_spider = Celery(
 celery_spider.result_serializer = 'json'
 celery_spider.conf.timezone = 'Asia/Shanghai'
 celery_spider.conf.enable_utc = False
+# 连接REDIS
+pool = redis.ConnectionPool(host=models.REDIS_HOST, port=models.REDIS_PORT, db=0, socket_connect_timeout=2,
+                            decode_responses=True)
+r = redis.Redis(connection_pool=pool)
 
 def run_spider(spider_name, last_goods=0, category_id=0):
     # 获取配置
@@ -48,23 +53,37 @@ def run_goods_spider(**kwargs):
     process.start()
     # 等待进程结束
     process.join()
-
+    r.set('spider_store_id', 0)
 
 @celery_spider.task
-def before_dawn():
+def before_dawn(store_list):
     """
         凌晨运行爬虫
     """
-    # 顺序执行
-    process = multiprocessing.Process(target=run_spider, args=('goods', 0))
-    process.start()
-    process.join()
-    process = multiprocessing.Process(target=run_spider, args=('turnover', 0))
-    process.start()
-    process.join()
-    process = multiprocessing.Process(target=run_spider, args=('orderform', 0))
-    process.start()
-    process.join()
+    # 查询需要爬取数据的门店信息
+    store_list = models.db.query(models.StoreList).filter(models.StoreList.mt_number != '00')
+    for store in store_list:
+        # 修改spider_store_id 为当前钥爬取的门店store_id
+        r.set('spider_store_id', store.store_id)
+        # 顺序执行
+        # 爬取最近跟新goods
+        process = multiprocessing.Process(target=run_spider, args=('goods', 0))
+        process.start()
+        process.join()
+        time.sleep(5)
+        # 爬取最近一月(不包括今天)的营业额
+        process = multiprocessing.Process(target=run_spider, args=('turnover', 0))
+        process.start()
+        process.join()
+        time.sleep(5)
+        # 爬取不包括今天的订单(过去2天)
+        process = multiprocessing.Process(target=run_spider, args=('orderform', 0))
+        process.start()
+        process.join()
+        time.sleep(30)
+    # 爬虫运行结束后,将spider_store_id 归零
+    r.set('spider_store_id', 0)
+    models.end()
 
 celery_spider.conf.beat_schedule = {
     'every-30-minutes':{

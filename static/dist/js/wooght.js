@@ -459,15 +459,17 @@ function run_spider(){
     success:function(data){
         alert('发出启动信号...')
         spider_id = data['id']
+        ask_status = setInterval(function(){
+          ask_spider_status(spider_id)
+        }, 3000)
     },
     error:function(data){
         err = data.responseJSON
+        $('#crawl').show()
+        $('#loading_img').hide()
         alert(get_back(err))
     }
   })
-  ask_status = setInterval(function(){
-    ask_spider_status(spider_id)
-  }, 3000)
 }
 spider_status = ''
 //获取爬虫状态

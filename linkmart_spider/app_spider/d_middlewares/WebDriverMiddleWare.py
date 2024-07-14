@@ -10,6 +10,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import time
 import redis
+from app_spider import models
 
 class WebDriverMiddleWare(object):
     driver = None           # chrome driver
@@ -20,7 +21,7 @@ class WebDriverMiddleWare(object):
 
     cookie_name = ''        # 对应的redis存放cookie的key
     cookies = {}            # cookie键值对
-    pool = redis.ConnectionPool(host="192.168.101.101", port=6379, db=0, socket_connect_timeout=2, decode_responses=True)
+    pool = redis.ConnectionPool(host=models.REDIS_HOST, port=models.REDIS_PORT, db=0, socket_connect_timeout=2, decode_responses=True)
     r = redis.Redis(connection_pool=pool)
     exception_url = []      # 错误url 当捕获异常后,将url append到exception_url, 如果存在次列表中,异常将返回None, 如果不存在,将返回request
 

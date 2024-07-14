@@ -132,7 +132,8 @@ DATABASES = {
         'CHARSET': 'utf8mb4',  # 支持表情，及中文4个字节
     }
 }
-
+REDIS_HOST = '192.168.101.101'
+REDIS_PORT = '6379'
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

@@ -11,13 +11,6 @@ from sqlalchemy import Column, Interval, String, SmallInteger, Index, Integer, F
 from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
 from common.SecretCode import Wst
 
-
-REDIS_HOST = '192.168.101.101'
-REDIS_PORT = '6379'
-
-MYSQL_HOST = 'mysql'
-MYSQL_PORT = '3306'
-
 """
     定义表
 """
@@ -88,8 +81,8 @@ class StoreList(Base):
 """
     连接数据库
 """
-host = MYSQL_HOST
-port = MYSQL_PORT
+host = 'mysql'
+port = '3306'
 database = 'linkmart'
 user = 'root'
 password = Wst.decryption('.u/fe<qzO|~TrC;13E=z2vpQI#]X_?>[_.F!,T`!B')
