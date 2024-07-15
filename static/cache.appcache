@@ -1,0 +1,19 @@
+
+CACHE MANIFEST
+# 版本标识
+# 更新日志：
+# 2024-04-01: v1
+
+# 需要缓存的文件列表
+CACHE:
+/index.html
+/static/plugins/*
+/static/dist/js/adminlte.js
+/static/dist/js/echarts.js
+/static/dist/js/jquery.min.js
+# 不需要缓存的文件
+NETWORK:
+*
+
+# 优先从缓存加载的文件
+FALLBACK:

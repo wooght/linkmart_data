@@ -76,6 +76,7 @@ class ClassifyAnalysis(BaseAnalysis):
         current_month = list(need_month.keys())[-1]
         # 对销量进行排序 倒序 columns 也可以进行排序
         pivot_orders = pivot_orders.transpose(copy=False)
+        print(pivot_orders)
         pivot_orders = pivot_orders.sort_values(by=current_month, ascending=False)
         pivot_orders = pivot_orders.transpose()
         # 对当前月类别进行分组,供通过父类名称查询使用
