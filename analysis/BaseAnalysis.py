@@ -9,6 +9,9 @@
 import pandas as pd
 import numpy as np
 from .DateTimeMath import WDateTime
+# 默认小数位数3位
+pd.set_option('display.precision', 4)
+
 class BaseAnalysis(object):
     bs_data = pd.DataFrame()        # 要进行分析的数据主体
     week_index = np.arange(0,7)     # 一周索引

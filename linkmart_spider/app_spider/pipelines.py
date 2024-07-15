@@ -5,17 +5,17 @@
 from typing import Dict, Any
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
+# from itemadapter import ItemAdapter
 from app_spider.items import ClassifyItem, GoodsItem, OrderFormItem, TurnoverFormItem
 from app_spider import models
 from common.DateTimeMath import WDate
 
 
 class AppSpiderPipeline:
-    goods_tmp: dict[Any, Any]       # 已经存在商品{code:goods,...}
-    exists_code = list[Any]         # 已经存在的商品所有[code,....]
-    all_orders = list[Any]
-    exists_turnover = [Any]
+    goods_tmp = {}       # 已经存在商品{code:goods,...}
+    exists_code = []         # 已经存在的商品所有[code,....]
+    all_orders = []
+    exists_turnover = []
     store_id = 0
     classify = {}
 
