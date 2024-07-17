@@ -22,7 +22,7 @@ class OrderFormView(APIView):
     """
     # 默认订单近400 天数据
     start_date = WDate.before_day(400)[0]
-    end_date = WDate.now_date
+    end_date = WDate.before_day(1)[0]
 
     def get(self, request):
         """
@@ -91,7 +91,7 @@ class OrderFormView(APIView):
 class ClassifyOrdersView(APIView):
     # 默认订单近400 天数据
     start_date = WDate.before_day(400)[0]
-    end_date = WDate.now_date
+    end_date = WDate.before_day(1)[0]
 
     def get(self, request):
         store_id = self.request.COOKIES['store_id']
