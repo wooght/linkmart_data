@@ -94,10 +94,13 @@ class ClassifyOrdersView(APIView):
     end_date = WDate.now_date
 
     def get(self, request):
+        store_id = self.request.COOKIES['store_id']
         # 获取数据
-        goods = GoodsList.objects.filter(store_id=self.request.COOKIES['store_id'])
-        orders = OrderForm.objects.filter(store_id=self.request.COOKIES['store_id'])
-        classify = GoodsClassify.objects.filter(store_id=self.request.COOKIES['store_id'])
+        goods = GoodsList.objects.filter(store_id=store_id)
+        # 需要查询的字段
+        fields = ['form_code', 'goods_code', 'goods_num', 'form_date']
+        orders = OrderForm.objects.values(*fields).filter(store_id=store_id, form_date__gt=self.start_date)
+        classify = GoodsClassify.objects.filter(store_id=store_id)
         analysis = ClassifyAnalysis(orders, classify, goods)
         result_data = analysis.top_classify_pack()
         turnover = BsData.objects.filter(store_id=self.request.COOKIES['store_id'])
