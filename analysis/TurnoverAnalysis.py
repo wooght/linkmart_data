@@ -49,7 +49,8 @@ class TurnoverAnalysis(BaseAnalysis):
         # 名字重复时,会自动加X,Y,后入为Y
         self.bs_data = self.bs_data.merge(by_month['gross_profit'], on='month', how='left')
         self.bs_data['gross_margin'] = self.bs_data['sum_y'] / self.bs_data['sum_x']
-        self.bs_data = self.bs_data.round(4)
+        self.bs_data.fillna(0, inplace=True)
+        self.bs_data = self.bs_data.round(2)
         return self.bs_data.to_dict('records')
 
     def profit_pack(self):
@@ -61,6 +62,7 @@ class TurnoverAnalysis(BaseAnalysis):
         by_month.reset_index(inplace=True)
         contrast = self.to_contrast('gross_profit', 'sum', False)
         by_month = by_month.merge(contrast, on='month', how='left')
+        by_month = by_month.round(2)
         return by_month.to_dict('records')
 
 

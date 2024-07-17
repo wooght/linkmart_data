@@ -37,6 +37,7 @@ class TurnoverModeView(APIView):
         if self.permissions.has_permission(request, self):
             profit_data = analysis.to_contrast('gross_profit', 'sum', True)
 
+        print(turnover_data)
         return Response({'turnover_data': turnover_data,
                          'contrast_data': contrast_data,
                          'contrast_gross': contrast_gross_margin,

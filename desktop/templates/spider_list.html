@@ -39,7 +39,7 @@
                 <div class="card">
                     <div class="card-header border-transparent">
                       <div class="row">
-                        <div class="col-sm-6">
+                        <div class="col-sm-12">
                           <select name="" id="top_classify">
                               <option value="0">最近更新</option>
                           </select>
@@ -47,6 +47,7 @@
                           <select name="" id="children_classify">
                             <option value="0">最近更新</option>
                           </select>
+                          <img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" class="float-right"><button class="btn btn-sm btn-secondary float-right" id="crawl" type="button">更新>></button>
                         </div>
                       </div>
                     </div>
@@ -60,7 +61,7 @@
                                   <th>名称</th>
                                   <th>价格</th>
                                   <th>售价</th>
-                                  <th><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">crawl</button></th>
+                                  <th></th>
                               </tr>
                             </thead>
                             <tbody id="content_list">
@@ -69,7 +70,7 @@
                                   <td>Call of Duty IV</td>
                                   <td><span class="badge badge-success">Shipped</span></td>
                                   <td></td>
-                                  <td><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">crawl</button></td>
+                                  <td><img id="loading_img" width="30" height="30" src="/static/dist/img/loading.gif" style="display: none;" ><button id="crawl" type="button">更新商品</button></td>
                               </tr>
                               <tr>
                                 <td>
@@ -211,8 +212,8 @@
       tr.append('<td>'+goods['bar_code']+'</td>')
       tr.append('<td>'+goods['price']+'</td>')
       tr.append('<td>'+
-        '<a onclick="get_function('+goods['id']+',\'\')" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt">标签</a>'+
-        '<a onclick="get_function('+goods['id']+',\'yan\')" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt">烟标签</a>'+
+        '<a onclick="get_function('+goods['id']+',\'\')" class="btn btn-info btn-sm"><i class="fas fa-pencil-alt">标签</i></a> '+
+        '<a onclick="get_function('+goods['id']+',\'yan\')" class="btn btn-primary btn-sm"><i class="fas fa-pencil-alt">烟标签</i></a>'+
           '</td>')
       $('#content_list').append(tr)
     })

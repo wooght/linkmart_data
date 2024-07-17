@@ -5,6 +5,8 @@ import sys
 
 
 def main():
+    # import time
+    # time.sleep(100000)
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'linkmart_data.settings')
     try:

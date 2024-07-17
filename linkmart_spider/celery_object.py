@@ -56,7 +56,7 @@ def run_goods_spider(**kwargs):
     r.set('spider_store_id', 0)
 
 @celery_spider.task
-def before_dawn(store_list):
+def before_dawn():
     """
         凌晨运行爬虫
     """
@@ -64,7 +64,7 @@ def before_dawn(store_list):
     store_list = models.db.query(models.StoreList).filter(models.StoreList.mt_number != '00')
     for store in store_list:
         # 修改spider_store_id 为当前钥爬取的门店store_id
-        r.set('spider_store_id', store.store_id)
+        r.set('spider_store_id', store.id)
         # 顺序执行
         # 爬取最近跟新goods
         process = multiprocessing.Process(target=run_spider, args=('goods', 0))
@@ -88,7 +88,7 @@ def before_dawn(store_list):
 celery_spider.conf.beat_schedule = {
     'every-30-minutes':{
         'task': 'celery_object.before_dawn',
-        'schedule': crontab(minute='37'),
+        'schedule': crontab(minute='12', hour='0'),
         'args':(),
     }
 }
