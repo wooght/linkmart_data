@@ -11,7 +11,7 @@ from login.user_permissions import IsManagePermission
 class StoreModelViewSet(ListCreateAPIView):
     queryset = StoreList.objects.all()
     serializer_class = StoreSerializer
-    permission_classes = [IsManagePermission,]
+    # permission_classes = [IsManagePermission,]
 
 
 """

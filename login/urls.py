@@ -11,4 +11,5 @@ from login import views
 urlpatterns = [
     path('login/', views.LoginAPIView.as_view()),
     path('user/', views.UserModelViewApi.as_view({'get':'list', 'post':'add_one'})),
+    path('permission/', views.PermissionViewApi.as_view()),
 ]

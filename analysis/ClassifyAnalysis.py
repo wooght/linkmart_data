@@ -102,10 +102,13 @@ class ClassifyAnalysis(BaseAnalysis):
         # 将turnover 归并到 orders
         orders = orders.merge(turnover, on='date', how='left')
         orders.fillna(0, inplace=True)
+        # 不进行corr的column
+        dont_corr = ['id', 'date', 'turnover', 'gross_profit', 'cost']
         # 进行相关性计算
         classify_corr = pd.DataFrame()
         for column_name in orders.columns.values:
-            classify_corr[column_name] = [orders[column_name].corr(orders['turnover'])]
+            if column_name not in dont_corr:
+                classify_corr[column_name] = [orders[column_name].corr(orders['turnover'])]
 
         # 近一个季度相关性计算
         w_date = WDateTime()
@@ -113,7 +116,8 @@ class ClassifyAnalysis(BaseAnalysis):
         quarter_orders = orders[orders['date'] > start_date]
         quarter_corr = pd.DataFrame()
         for column_name in quarter_orders.columns.values:
-            quarter_corr[column_name] = [quarter_orders[column_name].corr(quarter_orders['turnover'])]
+            if column_name not in dont_corr:
+                quarter_corr[column_name] = [quarter_orders[column_name].corr(quarter_orders['turnover'])]
         classify_corr.fillna(0, inplace=True)
         quarter_corr.fillna(0, inplace=True)
         return [classify_corr.to_dict('records'), quarter_corr.to_dict('records')]

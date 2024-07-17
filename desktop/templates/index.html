@@ -18,12 +18,6 @@
       <li class="nav-item">
         <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
       </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="/" class="nav-link">Home</a>
-      </li>
-      <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" class="nav-link">Contact</a>
-      </li>
     </ul>
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
@@ -31,10 +25,8 @@
       <li class="nav-item">
           <form class="form-inline">
             当前门店
-            <select class="custom-select rounded-0" id="exampleSelectRounded0">
-              <option>华宇广场店</option>
-              <option>东大路店</option>
-              <option>华实路店</option>
+            <select disabled="disabled" class="custom-select rounded-0" id="store_select">
+
             </select>
           </form>
       </li>
@@ -141,19 +133,19 @@
                   <p>地图展示</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <li id="cd_store" class="nav-item"  style="display: none;">
                 <a href="/desktop/save_cd_store/" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>门店管理</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <li id="cd_area" class="nav-item" style="display: none;">
                 <a href="desktop/save_cd_area/" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>区域管理</p>
                 </a>
               </li>
-              <li class="nav-item">
+              <li id="cd_data" class="nav-item" style="display: none;">
                 <a href="/desktop/save_cd_data/" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
                   <p>新增数据</p>
@@ -161,7 +153,7 @@
               </li>
             </ul>
           </li>
-          <li class="nav-item">
+          <li id="system_manage" class="nav-item" style="display: none;">
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-edit"></i>
               <p>
@@ -278,12 +270,40 @@
 <!-- overlayScrollbars -->
 <script src="/static/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
 <!-- AdminLTE App -->
+<script src="/static/dist/js/jquery.cookie.js"></script>
 <script src="/static/dist/js/adminlte.js"></script>
+<script src="/static/dist/js/wooght.js"></script>
 <script type="text/javascript">
   $(function(){
-    $('#index_nav').click();
+    
+    function set_permission(data){
+      if(data.result=='ok'){
+        $('#store_select').removeAttr('disabled')
+        $('#system_manage').show()
+        $('#cd_store').show()
+        $('#cd_area').show()
+        $('#cd_data').show()
+        $('#store_select').on('change', function(){
+          $.cookie('store_id', this.value)
+          $('#index_nav').click();
+        })
+      }
+      $('#index_nav').click();
+    }
+    function set_top_store(data){
+      store_select = $('#store_select')
+      $.each(data['results'], function(key, value){
+        if($.cookie('store_id') == value['id']){
+          store_select.append('<option selected="selected" value="'+value['id']+'">'+value['name']+'</option>')
+        }else{
+          store_select.append('<option value="'+value['id']+'">'+value['name']+'</option>')
+        }
+      })
+      get_data(url='/userauth/permission/', data={}, set_permission)
+    }
+    get_data(url='/store/', data={}, set_top_store)
+    
   })
-  
 </script>
 </body>
 </html>

@@ -9,6 +9,8 @@
 from rest_framework.permissions import BasePermission
 
 class IsManagePermission(BasePermission):
+    message = '权限不足'
+
     def has_permission(self, request, view):
         """
             是否有权限   固定格式

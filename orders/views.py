@@ -99,7 +99,9 @@ class ClassifyOrdersView(APIView):
         goods = GoodsList.objects.filter(store_id=store_id)
         # 需要查询的字段
         fields = ['form_code', 'goods_code', 'goods_num', 'form_date']
-        orders = OrderForm.objects.values(*fields).filter(store_id=store_id, form_date__gt=self.start_date)
+        orders = OrderForm.objects.values(*fields).filter(
+            Q(form_date__gt=self.start_date) &
+            Q(form_date__lt=self.end_date), store_id=store_id)
         classify = GoodsClassify.objects.filter(store_id=store_id)
         analysis = ClassifyAnalysis(orders, classify, goods)
         result_data = analysis.top_classify_pack()

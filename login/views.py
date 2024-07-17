@@ -127,4 +127,15 @@ class UserModelViewApi(ViewSet, ListAPIView):
             return Response(serializer_obj.errors, status=400)
 
 
+"""
+    权限判断API
+"""
+class PermissionViewApi(APIView):
+    permission = IsManagePermission()
+
+    def get(self, request):
+        if self.permission.has_permission(request, self):
+            return Response({'result':'ok'})
+        else:
+            return Response({'result':'error'})
 

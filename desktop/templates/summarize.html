@@ -614,7 +614,10 @@
         $('#price_last').text(price_ct[price_ct.length - 1].month_contrast.toFixed(2))
         $('#price_same').text(price_ct[price_ct.length - 1].year_contrast.toFixed(2))
     }
-    // 获取营业额数据
-    get_data('/turnover/index/', {}, charts_api)
+    $(function(){
+      // 获取营业额数据
+      get_data('/turnover/index/', {}, charts_api)
+    })
+    
   </script>
   {% endblock %}
