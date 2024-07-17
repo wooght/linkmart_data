@@ -101,6 +101,7 @@ class ClassifyAnalysis(BaseAnalysis):
         orders = orders.pivot_table(values='goods_num', index='date', columns='categoryName', aggfunc='sum')
         # 将turnover 归并到 orders
         orders = orders.merge(turnover, on='date', how='left')
+        orders.fillna(0, inplace=True)
         # 进行相关性计算
         classify_corr = pd.DataFrame()
         for column_name in orders.columns.values:
