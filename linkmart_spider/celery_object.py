@@ -96,4 +96,8 @@ celery_spider.conf.beat_schedule = {
 """
     启动worker的方法:
     celery multi start w1 -A celery_object -l info -P threads
+    停止:
+    celery multi stop w1 -A celery_object -l info
+    等待执行完再停止:
+    celery multi stopwait w1 -A celery_object -l info
 """

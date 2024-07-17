@@ -20,7 +20,11 @@ function get_back(data){
   }else if('password' in data){
     return data['password']
   }else if('detail' in data){
-    return data['detail']
+    if(data['detail'].indexOf('token')){
+      parent.window.location.href = '/desktop/login'
+    }else{
+      return data['detail']
+    }
   }else if('error' in data){
     return data['error']
   }

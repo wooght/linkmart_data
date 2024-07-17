@@ -38,7 +38,7 @@
 				<img style="margin-left:6px; margin-top:2px; margin-bottom:2px;" src="/static/dist/img/linklogo.png" width="70" height="14" />
 				<div style="font-size:6px; border-top:1px solid #333; margin-top:1px; margin-bottom:1px;">
 					<div style="font-size:12px; overflow:hidden; display:block; width:100%; height:14px; margin-left:2px;">品 名：<b class="good_name">{{good}}</b></div>
-					<table style="font-size:6px; border:0px solid red;"  cellpadding="0">
+					<table style="font-size:12px; border:0px solid red; margin:3px 0px;"  cellpadding="0">
 						<tr>
 							<td>单 位：</td>
 							<td width="50" class="good_company">瓶</td>
@@ -66,10 +66,10 @@
 			<!--startprintyan-->
 			<div class="print-content">
 				<img style="margin-left:6px; margin-top:2px; margin-bottom:2px;" src="/static/dist/img/linklogo.png" width="70" height="14" />
-				<div style="font-size:6px; border-top:1px dashed #333; margin-top:1px; margin-bottom:1px;">
+				<div style="font-size:12px; border-top:1px dashed #333; margin-top:1px; margin-bottom:1px;">
 					<div style="font-size:16px; overflow:hidden; display:block; width:100%; height:20px; margin-left:2px; margin-top:2px;">品 名：<span class="good_name">{{good}}</span></div>
 				<div style=" height:2px;  border-bottom:1px dashed #000;"></div>
-					<div style="margin-left:4px;">单 位：<span class="good_company"></span></div>
+					<div style="margin-left:4px; margin-top: 3px; margin-bottom: 3px;">单 位：<span class="good_company"></span></div>
 				<table width="100%" cellspacing="0" cellpadding="0"><tr>
 					<td><div id="barcodeTarget_yan" class="barcodeTarget"></div></td>
 					<td style="font-size:6px; border-left:1px dashed #000; line-height:14px; padding-left:1px;">零<br />售<br />价</td>
@@ -88,8 +88,8 @@
 	<script>
 	// 控制中心
 	var bar_style = ''
-	function get_barcode(good_id,bar_style){
-		bar_style = bar_style
+	function get_barcode(good_id,bar_style_code){
+		bar_style = bar_style_code
 		the_good = get_data('/goods/classify_goods/'+good_id, data={}, set_barcode)
 	}
 	function set_barcode(the_good){
@@ -97,14 +97,18 @@
 		$(".good_name").text(the_good.name)
 		$(".good_price").text(the_good.price)
 		$(".good_place").text(the_good.place)
-		$("#good_price").text(parseFloat(the_good.price).toFixed(2))
+		if(parseFloat(the_good.price) < 100){
+			$("#good_price").text(parseFloat(the_good.price).toFixed(2))
+		}else{
+			$("#good_price").text(the_good.price)
+		}
 		$(".good_company").text(the_good.company)
 		$(".classify").text(the_good.classify)
 		// 制作条码
 		generateBarcode($("#barcodeTarget"),the_good.bar_code)
 		generateBarcode($("#barcodeTarget_yan"),the_good.bar_code)
 		//执行打印
-		doPrint(bar_style)
+		doPrint()
 	}
 	// 制作条码
 	function generateBarcode(codedoc, bar_code){
@@ -125,7 +129,7 @@
 		codedoc.html("").show().barcode(bar_code, btype, settings);
 	}
 	// 执行打印
-	function doPrint(bar_style) {
+	function doPrint() {
 		const html = window.document.body.innerHTML;
 		const start = "<!--startprint"+bar_style+"-->"; //开始打印标识字符串有17个字符
 		const end = "<!--endprint"+bar_style+"-->"; //结束打印标识字符串
