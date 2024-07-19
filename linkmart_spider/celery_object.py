@@ -88,16 +88,17 @@ def before_dawn():
 celery_spider.conf.beat_schedule = {
     'every-30-minutes':{
         'task': 'celery_object.before_dawn',
-        'schedule': crontab(minute='12', hour='0'),
+        'schedule': crontab(minute='19', hour='17'),
         'args':(),
     }
 }
 
 """
     启动worker的方法:
-    celery multi start w1 -A celery_object -l info -P threads
+    celery multi start w1 -A celery_object worker -l info -P threads
     停止:
     celery multi stop w1 -A celery_object -l info
+    celery multi stop worker -A celery_object -l info
     等待执行完再停止:
     celery multi stopwait w1 -A celery_object -l info
 """

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %} 门店管理 {% endblock %}
 {% block body %}
-<section class="content container-fluid" style="background-color:#fff;">
+<div class="content-wrapper" style="background-color:#fff;">
     <div class="card-header border-transparent">
         <div class="row">
           <div class="col-sm-6" style="line-height: 48px;">
@@ -119,8 +119,8 @@
             </table>
         </div>
       <!-- /.table-responsive -->
-      </div>
-</section>
+    </div>
+</div>
 
 {% endblock %}
 {% block script %}
@@ -131,7 +131,7 @@
     function seccess_function(result_data){
         loading_stats(0)
         all_goods = result_data['goods_data']
-        set_charts(result_data['chart_data'])
+        set_main_charts(result_data['chart_data'])
         goods_to_list(result_data['goods_data'])
         set_contrast_charts(result_data['contrast_data'])
         get_one_quality(result_data['quality'])
@@ -228,22 +228,32 @@
     var main_chart
     var contrast_chart
     // 运行走势图表
-    function set_charts(data){
+    function set_main_charts(data){
         main_chart = echarts.init(document.getElementById('main'));
         all_date = []       // 所有日期
         all_nums = []       // 所有销量
         month_average = []  // 月平均值
+        all_goods_num = 0
         $.each(data, function(key, val){
             all_date.push(val['date'])
             all_nums.push(val['goods_num'])
             month_average.push(val['month_mean'])
+            all_goods_num += val['goods_num']
         })
         // 指定图表的配置项和数据
         var option = {
             title: {
                 text: ''
             },
-            tooltip: {},
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
             legend: {
                 data:['营业量','月均值'],
                 right:10,
@@ -273,51 +283,30 @@
 
         // 使用刚指定的配置项和数据显示图表。
         main_chart.setOption(option);
+        $('#day').text((all_goods_num/401).toFixed(2))
     }
     // 运行涨跌图表
     function set_contrast_charts(data){
-        all_date = []
+        var date_list = []
         month_contrast = []
         year_contrast = []
         all_goods_num = 0
         $.each(data, function(key, val){
-            all_date.push(val['month'])
+            date_list.push(val['month'])
             month_contrast.push(val['month_contrast'])
             year_contrast.push(val['year_contrast'])
             all_goods_num += val['goods_num']
         })
         // 月均涨幅图
         contrast_chart = echarts.init(document.getElementById('month_average'));
-        var option = {
-            title: {
-                text: ''
-            },
-            tooltip: {},
-            grid:{
-                top:'5%',
-                left:'5%',
-                bottom:'5%',
-                right:'5%',
-                containLabel:true
-            },
-            xAxis: {
-                data: all_date
-            },
-            yAxis: {},
-            series: [{
-                name: '同比',
-                type: 'bar',
-                data: year_contrast
-                },{
-                name: '环比',
-                type: 'bar',
-                data: month_contrast
-                },]
-        };
-        contrast_chart.setOption(option);
-        contrast_chart.connect([main_chart])
-        main_chart.connect(contrast_chart)
-        $('#day').text((all_goods_num/401).toFixed(2))
+        chart_data = [
+            {name: '同比',type: 'bar',data: year_contrast},
+            {name: '环比',type: 'bar',data: month_contrast},
+        ]
+        set_charts(contrast_chart, chart_data,date_list,'CONTRAST',['同比','环比'])
+        // contrast_chart.connect([main_chart])
+        // main_chart.connect(contrast_chart)
+        
 
     }
 

@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),                    # 后台
     path('desktop/', include('desktop.urls')),          # 页面,所有HTML页面放这里
     path('userauth/', include('login.urls')),           # 用户API
-    path('store/', StoreModelViewSet.as_view()),
-    re_path('store/(?P<pk>\d+)', StoreOneViewApi.as_view()),
+    path('lk_store/', include('store.urls')),           # 领克店铺
+
     path('caidian/', include('caidian.urls')),           # 踩点
     path('runspider/', include('run_spider.urls')),      # 运行spider
     path('goods/', include('goods.urls')),               # linkmart goods

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %} 门店管理 {% endblock %}
+{% block title %} 个人中心 {% endblock %}
 {% block body %}
 <div class="wrapper">  
   <div class="content-wrapper">
@@ -8,7 +8,7 @@
         <div class="container-fluid">
           <div class="row mb-2">
             <div class="col-sm-6">
-              <h1 class="m-0">系统管理</h1>
+              <h1 class="m-0">个人中心</h1>
             </div><!-- /.col -->
             <div class="col-sm-6">
               <ol class="breadcrumb float-sm-right">
@@ -25,16 +25,10 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-header border-transparent">
-                    <h3 class="card-title">用户列表</h3>
-
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-tool" data-card-widget="remove">
-                        <i class="fas fa-times"></i>
-                        </button>
-                    </div>
+                      <h3 class="card-title">用户列表</h3>
+                      <div class="card-tools">
+                        <a id="login_out_a" class="btn btn-sm btn-secondary float-right">退出登录</a>
+                      </div>
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body p-0">
@@ -49,25 +43,11 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr>
-                            <td><a href="pages/examples/invoice.html">OR9842</a></td>
-                            <td>Call of Duty IV</td>
-                            <td><span class="badge badge-success">Shipped</span></td>
-                            <td>
-                            <div class="sparkbar" data-color="#00a65a" data-height="20">90,80,90,-70,61,-83,63</div>
-                            </td>
-                        </tr>
                         </tbody>
                         </table>
                     </div>
                     <!-- /.table-responsive -->
                     </div>
-                    <!-- /.card-body -->
-                    <div class="card-footer clearfix">
-                    <a href="javascript:void(0)" class="btn btn-sm btn-info float-left">Place New Order</a>
-                    <a href="javascript:void(0)" class="btn btn-sm btn-secondary float-right">View All Orders</a>
-                    </div>
-                    <!-- /.card-footer -->
                 </div>
             </div>
             <div class="col-md-4">
@@ -87,12 +67,12 @@
 
                           <div class="form-group">
                             <label for="exampleInputRounded0">新密码</label>
-                            <input type="password" class="form-control rounded-0" id="exampleInputRounded0" placeholder="new password">
+                            <input type="password" class="form-control rounded-0" id="exampleInputRounded1" placeholder="new password">
                           </div>
 
                           <div class="form-group">
                             <label for="exampleInputRounded0">确认密码</label>
-                            <input type="password" class="form-control rounded-0" id="exampleInputRounded0" placeholder="confirm password">
+                            <input type="password" class="form-control rounded-0" id="exampleInputRounded2" placeholder="confirm password">
                           </div>
                           
                           <div class="row">
@@ -112,13 +92,28 @@
         </div>
       </section>
       <!-- 子页面主体内容结束 -->
-    </div>
-    </div>
+  </div>
+</div>
 {% endblock %}
 {% block script %}
 <script type="text/javascript">
+  function update_result(data){
+    alert('修改成功,请重新登录')
+    login_html()
+  }
+  function update_password(){
+    submit_data = {}
+    input_label = $("form").eq(0).find("input")
+    submit_data['password'] = input_label.eq(0).val()
+    submit_data['new_password'] = input_label.eq(1).val()
+    submit_data['confirm_password'] = input_label.eq(2).val()
+    put_data(url='/userauth/login/', data=submit_data, update_result)
+  }
   $(function(){
     get_users('one')
+    data = get_store('select')
+    $('#update_password').bind('click', update_password)
+    $("#login_out_a").on('click', login_out)
   })
 </script>
 {% endblock %}

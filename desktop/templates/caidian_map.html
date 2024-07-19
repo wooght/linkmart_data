@@ -1,17 +1,16 @@
 {% extends 'base.html' %}
 {% block title %} 门店管理 {% endblock %}
 {% block body %}
-  <div class="wrapper">  
       <!-- 子页面主体内容 -->
-        <section style="margin:auto; padding-top:20px;">
+      <div class="wrapper">
+        <div class="content-wrapper">
             <script src="https://api.map.baidu.com/api?type=webgl&v=1.0&ak=45EcEdTSLRwAK9HORoMbqHiR2pX6712T"></script>
             <script src="/static/dist/js/wooght_map.js"></script>
             <script src="/static/dist/js/linkmart_cd_json.js"></script>
             <div id="map_box" style="overflow:hidden; width:100%; height: 900px;"></div>
-        </section>
+        </div>
+    </div>
       <!-- 子页面主体内容结束 -->
-  </div>
-
 {% endblock %}
 {% block script %}
 <script type="text/javascript">

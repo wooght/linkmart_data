@@ -321,8 +321,8 @@
         month_contrast.push(row.month_contrast)
         year_contrast.push(row.year_contrast)
       })
-      $("#th_same").text(month_contrast[month_contrast.length - 1].toFixed(2))
-      $('#th_last').text(year_contrast[year_contrast.length - 1].toFixed(2))
+      $("#th_last").text(month_contrast[month_contrast.length - 1].toFixed(2))
+      $('#th_same').text(year_contrast[year_contrast.length - 1].toFixed(2))
       // 月均涨幅图
       var averageChart = echarts.init(document.getElementById('month_average'));
         var option = {

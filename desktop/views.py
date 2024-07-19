@@ -11,7 +11,7 @@ from django.http import HttpRequest
 
 # 首页
 def index(request):
-    return render(request, template_name='index.html')
+    return render(request, template_name='summarize.html')
 
 # 登录页
 def login(request):

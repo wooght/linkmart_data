@@ -1,9 +1,11 @@
 var token_key = 'uuid'
 token = $.cookie(token_key)
+function login_html(){
+  parent.window.location.href = '/desktop/login'
+}
 if(token === undefined){
     if(!window.location.href.includes('/desktop/login')){
-        alert('请登录')
-        parent.window.location.href = '/desktop/login'
+        login_html()
     }
 }
 if(!window.location.href.includes('/desktop/login')){
@@ -13,15 +15,18 @@ if(!window.location.href.includes('/desktop/login')){
         }
     })
 }
-
 function get_back(data){
+  /**
+   * ajax callback错误判断
+   */
   if('username' in data){
     return data['username']
   }else if('password' in data){
     return data['password']
   }else if('detail' in data){
-    if(data['detail'].indexOf('token')){
-      parent.window.location.href = '/desktop/login'
+    if(data['detail'].indexOf('token') > 0){
+      login_html()
+      return '请登录'
     }else{
       return data['detail']
     }
@@ -33,38 +38,42 @@ function get_back(data){
   }
 }
 
+function add_cookie(c_list){
+  // expires 保留天数, path 路径
+  $.each(c_list, function(key, value){
+    $.cookie(key, value, {expires:7, path:'/'})
+  })
+}
+function del_cookie(c_list){
+  // 删除和添加必须在同域同路径
+  $.each(c_list, function(key,value){
+    $.cookie(value, null, {expires:-1, path:'/'})
+  })
+}
+
 /**
- * linkmart 用户模块
- * 登录,注册,修改,列表
+ * @zone linkmart 用户模块
+ * @content 登录,注册,修改,列表
  */
 function to_login(){
     submit_data = {}
     submit_data['username'] = $("input").eq(0).val()
     submit_data['password'] = $('input').eq(1).val()
     token = $.cookie('token')
-    // if(typeof token === "undefined" || token === null){
-    //   alert('请登录')
-    // }
-    // else{
-    //   alert('已经登录')
-    //   alert(token)
-    // }
-  $.ajax({
-    url:'/userauth/login/',
-    method:'POST',
-    data:submit_data,
-    async:true,
+  $.ajax({url:'/userauth/login/',method:'POST',data:submit_data,async:true,
     success:function(data){
-      alert('登录成功')
       if('access' in data){
-        $.cookie('access', data['access'])
-        $.cookie('refresh', data['refresh'])
-        $.cookie('store_id', data['store_id'], {expires:7, path:'/'})
+        add_cookie({
+          'access':data['access'],
+          'refresh':data['refresh'],
+          'store_id':data['store_id']
+        })
       }else if('uuid' in data){
-        // expires 保留天数, path 路径
-        $.cookie('uuid', data['uuid'], {expires:7, path:'/'})
-        $.cookie('nid', data['nid'], {expires:7, path:'/'})
-        $.cookie('store_id', data['store_id'], {expires:7, path:'/'})
+        add_cookie({
+          'uuid': data['uuid'],
+          'nid': data['nid'],
+          'store_id': data['store_id']
+        })
       }
       window.location.href = '/'
     },
@@ -74,9 +83,22 @@ function to_login(){
     }
   })
 }
-$('#to_login').click(function(){to_login()})
+function login_out(){
+  /**
+   * 退出登录
+   */
+  if(token_key=='uuid'){
+    del_cookie(['uuid', 'nid', 'store_id'])
+  }else{
+    del_cookie(['access', 'refresh', 'store_id'])
+  }
+  login_html()
+}
 
 function to_register(){
+  /**
+   * 员工注册
+   */
   submit_data = {}
   input_label = $("form").eq(0).find("input")
   submit_data['username'] = input_label.eq(0).val()
@@ -84,11 +106,7 @@ function to_register(){
   submit_data['password'] = input_label.eq(2).val()
   submit_data['password_again'] = input_label.eq(3).val()
   submit_data['store_id'] = $('form').eq(0).find('select').val()
-  $.ajax({
-    url:'/userauth/user/',
-    method:'POST',
-    data:submit_data,
-    async:true,
+  $.ajax({url:'/userauth/user/',method:'POST',data:submit_data,async:true,
     success:function(){
       alert('添加成功')
       now_page = 1
@@ -129,40 +147,21 @@ function get_users(action){
       },
       error:function(data){
         err = data.responseJSON
-        alert(err)
+        get_back(err)
       }
     })
 }
 
-function update_password(){
-  submit_data = {}
-  input_label = $("form").eq(0).find("input")
-  submit_data['password'] = input_label.eq(0).val()
-  submit_data['new_password'] = input_label.eq(1).val()
-  submit_data['confirm_password'] = input_label.eq(2).val()
-  $.ajax({
-    url:'/userauth/login/',
-    method:'PUT',
-    data:submit_data,
-    async:true,
-    success:function(){
-      alert('修改成功')
-    },
-    error:function(data){
-      err = data.responseJSON
-      alert(get_back(err))
-    }
-  })
-}
-$('#update_password').bind('click', update_password)
-
 /**
  * 
- * linkmart 门店模块
- * 列表,添加,修改
+ * @zone linkmart 门店模块
+ * @content 列表,添加,修改
  */
 function set_store_update(id){
-  $.ajax({url:'/store/'+id,method:'GET',async:true,
+  /**
+   * 查询link门店
+   */
+  $.ajax({url:'/lk_store/update/'+id,method:'GET',async:true,
     success:function(data){
       inputs = $('#put_lk_store').find('input')
       inputs.each(function(key, input){
@@ -178,10 +177,7 @@ function get_store(action){
   /**
    * action: select, list   根据参数不同做不同的DOM操作
    */
-  $.ajax({
-    url:'/store/',
-    method:'GET',
-    async:true,
+  $.ajax({url:'/lk_store/list/',method:'GET',async:true,
     success:function(data){
       if(action=='select'){
         selected = $('#register_store_id')
@@ -210,29 +206,25 @@ function get_store(action){
 
 function add_store(event){
   /**
-   * 添加门店
+   * 添加/修改link门店
    * event 获取不定参数
    */
   action = event.data.action
   if(action=='add'){
     form_number = 0
     method = 'POST'
-    url = '/store/'
+    url = '/lk_store/list/'
   }else{
     form_number = 1
     method = 'PUT'
-    url = '/store/'+$('#display_id').val()
+    url = '/lk_store/update/'+$('#display_id').val()
   }
     submit_data = {}
     input_label = $("form").eq(form_number).find("input")
     input_label.each(function(index, val){
       submit_data[val.name] = val.value
     })
-  $.ajax({
-    url:url,
-    method:method,
-    async:true,
-    data:submit_data,
+  $.ajax({url:url,method:method,async:true,data:submit_data,
     success:function(data){
       alert('执行成功')
       get_store('list')
@@ -247,6 +239,12 @@ function add_store(event){
 $('#to_add_store').on('click',{action:'add'}, add_store)
 $("#to_up_store").on('click',{action:'put'}, add_store)
 
+/**
+ * 
+ * @zone 行业数据 踩点数据
+ * @content 区域管理,门店管理,踩点数据管理,数据展示
+ * 
+ */
 
 // 获取踩点数据
 function get_area(){
@@ -344,7 +342,7 @@ function update_cd_store(){
   submit['cd_label'] = get_label_checked()
   
   $.ajax({
-      url:'/caidian/store/'+submit['store_id']+'/',
+      url:'/caidian/upstore/'+submit['store_id']+'/',
       method:'PUT',
       data:submit,
       async:true,
@@ -370,7 +368,6 @@ function save_cd_area(action){
   inputs.each(function(key, item){
     submit_data[item.name] = (item.value == '') ? 0 : item.value
   })
-  alert(submit_data['id'])
   $.ajax({
     url:'/caidian/area/' + ((action == 'add') ? '':submit_data['id']+'/'),
     method:(action == 'add') ? 'POST':'PUT',
@@ -385,7 +382,6 @@ function save_cd_area(action){
     }
   })
 }
-$('#button_cd_area').bind('click', save_cd_area)
 
 // 获取单个商圈数据 设置表单
 function get_area_one(){
@@ -408,7 +404,7 @@ function get_area_one(){
 $('#select_area').bind('change', get_area_one)
 
 // 保存踩点数据
-function save_cd_area(){
+function save_cd_data(){
   inputs = $('#caidian_data').find('input')
   submit_data = {}
   inputs.each(function(key, item){
@@ -442,11 +438,13 @@ function save_cd_area(){
     }
   })
 }
-$("#add_cd_data").bind('click', save_cd_area)
+$("#add_cd_data").bind('click', save_cd_data)
 
 
-/*
- * 爬虫模块
+/**
+ * @zone 爬虫模块
+ * @content 调用爬虫,爬虫状态
+ * 
  */
 var spider_id = ''
 var ask_status = Object
@@ -488,8 +486,8 @@ function ask_spider_status(spider_id){
         if(data['status'] == 'SUCCESS'){
           $('#crawl').show()
           $('#loading_img').hide()
-          alert('爬取成功')
-          get_goods()
+          alert('刷新成功')
+          refresh_goods()
           clearInterval(ask_status)
         }
     },
@@ -501,6 +499,13 @@ function ask_spider_status(spider_id){
   })
 }
 
+/**
+ * @zone ajax 通用函数
+ * @param {*} url 
+ * @param {*} data 
+ * @param {*} call_back 
+ * @returns 
+ */
 function get_data(url, data, call_back=null){
   var result_data = {}
   $.ajax({
@@ -564,8 +569,12 @@ function put_data(url, data, call_back=null){
   return result_data
 }
 
-
-//热力图标
+/**
+ * @zone charts图表工具
+ * @param {*} chart_doc 
+ * @param {*} all_data 
+ * @param {*} chart_name 
+ */
 function hotmap(chart_doc, all_data, chart_name){
   const hours = []
   for(i=0;i<24;i++){

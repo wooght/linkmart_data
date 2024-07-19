@@ -5,8 +5,7 @@ import sys
 
 
 def main():
-    # import time
-    # time.sleep(100000)
+    args = sys.argv
     """Run administrative tasks."""
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'linkmart_data.settings')
     try:
@@ -17,7 +16,16 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
-    execute_from_command_line(sys.argv)
+
+    if 'runserver' in args:
+        if 'debug' in args:
+            execute_from_command_line(['manage.py', 'runserver', '0.0.0.0:80'])
+        else:
+            import time
+            time.sleep(1000000)
+    else:
+        execute_from_command_line(sys.argv)
+
 
 
 if __name__ == '__main__':

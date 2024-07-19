@@ -55,7 +55,6 @@ class CaiDianStoreAPIView(generics.ListAPIView, generics.CreateAPIView, generics
     permission_classes = [IsManagePermission,]
 
     # def update(self, request, *args, **kwargs):
-    #     print(pk)
     #     serializer_obj = self.get_serializer(data=request.data)
     #     if serializer_obj.is_valid():
     #         print(serializer_obj.validated_data)

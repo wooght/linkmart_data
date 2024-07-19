@@ -11,7 +11,14 @@ from login.user_permissions import IsManagePermission
 class StoreModelViewSet(ListCreateAPIView):
     queryset = StoreList.objects.all()
     serializer_class = StoreSerializer
-    # permission_classes = [IsManagePermission,]
+    permission_classes = [IsManagePermission,]
+
+    def get_permissions(self):
+        # 获取门店列表不需要权限
+        if self.request.method == 'GET':
+            return []
+        else:
+            return [permission() for permission in self.permission_classes]
 
 
 """
@@ -21,4 +28,4 @@ class StoreModelViewSet(ListCreateAPIView):
 class StoreOneViewApi(RetrieveUpdateAPIView):
     queryset = StoreList.objects.all()
     serializer_class = StoreSerializer
-    permission_classes = [IsManagePermission]
+    permission_classes = [IsManagePermission,]
