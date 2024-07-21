@@ -4,6 +4,7 @@
 /.idea/
 *.sdi
 *.zip
+*.file
 */migrations/
 linkmart_data/settings.py
 linkmart_spider/app_spider/models.py

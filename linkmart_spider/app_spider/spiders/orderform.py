@@ -8,6 +8,7 @@ from app_spider.items import OrderFormItem
 
 class OrderformSpider(scrapy.Spider):
     name = "orderform"
+    custom_date = None     # 自定义时间
 
     form_text = json.loads('{"startTime":"1716825600000","endTime":"1716903900000","orderIdMatch":"","paymentType":0,"payTypeName":"全部","payType":-1,"startDate":"2024/05/28 00:00","endDate":"2024/05/28 21:45","cashierId":0,"discountType":0,"orderType":0,"offset":0,"limit":20}')
     form_data = {key:str(value) for key, value in form_text.items()}
@@ -18,11 +19,31 @@ class OrderformSpider(scrapy.Spider):
         url需求时间戳    171,682,5600,000
     """
 
+    def __init__(self, custom_date=None, *args, **kwargs):
+        """
+            params: custom_date 自定义时间 str 'Y/m/d
+        """
+        super().__init__(*args, **kwargs)
+        print('接受params', custom_date)
+        self.custom_date = custom_date if custom_date else None
+
     def start_requests(self) -> Iterable[Request]:
-        end_date = self.WDate.now_date
-        start_date = self.WDate.before_day(3)
+        if self.custom_date:
+            # 自定义时间
+            end_date = self.custom_date
+            to_current_days = self.WDate.pass_day(end_date, self.WDate.now_date)
+            if to_current_days <= 0:
+                return
+            else:
+                # 给定日期的前一天
+                start_date = self.WDate.before_day(to_current_days+1)
+                print('起始时间:', start_date, end_date)
+        else:
+            # 默认今天的前两天
+            end_date = self.WDate.now_date
+            start_date = self.WDate.before_day(3)
         self.form_data['startDate'] = start_date[0] + ' 00:00'
-        self.form_data['startTime'] = str(start_date[1] * 1000)
+        self.form_data['startTime'] = str(int(self.WDate.str_to_stamp(start_date[0]+' 00:00')) * 1000)
         self.form_data['endDate'] = end_date + ' 00:00'
         self.form_data['endTime'] = str(int(self.WDate.str_to_stamp(end_date+' 00:00')) * 1000)
         yield FormRequest(url="https://retailadmin-erp.meituan.com/api/order/queryOrder",
@@ -68,7 +89,6 @@ class OrderformSpider(scrapy.Spider):
                 https://retailadmin-erp.meituan.com/api/order/queryOrder?yodaReady=h5&csecplatform=4&csecversion=2.4.0
             """
             self.form_data['lastOrderId'] = self.last_order_id
-            print('新page')
             yield FormRequest(url="https://retailadmin-erp.meituan.com/api/order/queryOrder?yodaReady=h5&csecplatform=4&csecversion=2.4.0",
                               method='POST',
                               formdata=self.form_data,

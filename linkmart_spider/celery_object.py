@@ -33,13 +33,20 @@ pool = redis.ConnectionPool(host=models.REDIS_HOST, port=models.REDIS_PORT, db=0
 r = redis.Redis(connection_pool=pool)
 
 def run_spider(spider_name, last_goods=0, category_id=0):
+    """
+        运行spider
+        params: spider_name 爬虫名称 last_goods 是否只更新最近商品, category_id 类别/custom_date
+    """
     # 获取配置
     settings = get_project_settings()
     # 设置配置
     settings.set('last_goods', last_goods, priority='cmdline')
     process = CrawlerProcess(settings)
+    # 不同spider传递不同params
     if spider_name == 'goods':
         process.crawl(spider_name, category_id=category_id)
+    elif spider_name == 'orderform':
+        process.crawl(spider_name, custom_date=category_id)
     else:
         process.crawl(spider_name)
     process.start(stop_after_crawl=True)    # 爬虫结束后 关闭引擎

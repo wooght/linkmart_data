@@ -21,7 +21,7 @@ urlpatterns = [
     path('save_cd_area/', views.save_cd_area),
     path('save_cd_data/', views.save_cd_data),
     # 工具
-    path('spider_list/', views.spider_list),
+    path('barcode_list/', views.barcode_list),
     path('barcode_toprint', views.barcode_toprint),
     # 数据展示
     path('sku_list/', views.sku_list),
@@ -29,4 +29,7 @@ urlpatterns = [
 
     # 保质单
     path('quality_list/', views.quality_list),
+
+    # 爬虫
+    path('spider_list/', views.spider_list),
 ]

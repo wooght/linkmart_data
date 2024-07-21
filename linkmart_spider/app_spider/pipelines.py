@@ -90,18 +90,19 @@ class AppSpiderPipeline:
                     need_update = False
                     for key in {'name', 'price', 'category_id', 'stock_nums'}:
                         if i[key] != getattr(self.goods_tmp[i['bar_code']], key):
-                            print(key)
                             need_update = True
                             break
+                        else:
+                            need_update = False
                     if need_update:
                         r = models.db.query(models.Goods).filter_by(store_id=self.store_id, bar_code=i['bar_code']).update(
                             {**i})
-                        print('update: {} goods'.format(r))
-                    else:
-                        print('goods exists')
+                        # print('update: {} goods'.format(r))
+                    # else:
+                    #     print('goods exists')
                 else:
                     # 新增商品
-                    print('add {} goods'.format(i['name']))
+                    # print('add {} goods'.format(i['name']))
                     models.db.add(models.Goods(**i))
                 models.db.commit()
         elif isinstance(item, OrderFormItem):
@@ -114,9 +115,10 @@ class AppSpiderPipeline:
                 if order['sku_id'] in sku_ids:
                     order['goods_code'] = self.goods_tmp[order['sku_id']].bar_code
                     if order['form_code'] in self.all_orders:
-                        print('重复订单{}, {}'. format(order['form_code'], order['goods_name']))
+                        # print('重复订单{}, {}'. format(order['form_code'], order['goods_name']))
+                        continue
                     else:
-                        print('执行添加订单')
+                        # print('执行添加订单')
                         models.db.add(models.OrderForm(**order))
                 else:
                     # 商品不存在

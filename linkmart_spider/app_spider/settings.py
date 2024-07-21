@@ -29,8 +29,8 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 1     # 同域并发量
 CONCURRENT_REQUESTS_PER_IP = 1         # 同IP并发量
 COOKIES_ENABLED = True                 # 是否启动cookie
 RETRY_TIMES = 1                        # 重试次数
-# 日志级别  ERROR/WARNING/CRITICAL/DEBUG
-LOG_LEVEL = "INFO"
+# 日志级别  CRITICAL/ERROR/WARNING/INFO/DEBUG
+LOG_LEVEL = "ERROR"
 LOG_ENABLED = True
 LOG_STDOUT = False   # True 可能会导致scrapyd显示问题
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 "

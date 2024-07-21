@@ -26,12 +26,12 @@ class GoodsSpider(scrapy.Spider):
         else:
             self.current_url = self.no_category_template
 
-
     def make_url(self, page):
         args = (page, self.pagesize, self.category_id) if int(self.category_id) != 0 else (page, self.pagesize)
         return self.current_url.format(*args)
 
     def start_requests(self) -> Iterable[Request]:
+        print('起始页面:'+self.make_url(1))
         yield Request(
             url=self.make_url(1),
             callback=self.parse, meta={'native': 1})

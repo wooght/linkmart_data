@@ -43,8 +43,8 @@ def save_cd_data(request):
 def user(request):
     return render(request, template_name='user.html')
 
-def spider_list(request):
-    return render(request, template_name='spider_list.html')
+def barcode_list(request):
+    return render(request, template_name='barcode_list.html')
 
 def barcode_toprint(request):
     return render(request, template_name='barcodeprint.html')
@@ -57,3 +57,6 @@ def classify_analysis(request):
 
 def quality_list(request):
     return render(request, template_name='quality_list.html')
+
+def spider_list(request):
+    return render(request, template_name='spider_list.html')
