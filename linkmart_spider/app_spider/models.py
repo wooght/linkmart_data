@@ -7,8 +7,8 @@
 @Content    :模型
 """
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Interval, String, SmallInteger, Index, Integer, Float, Date, Time
-from sqlalchemy.orm import declarative_base, sessionmaker, scoped_session
+from sqlalchemy import Column, String, Integer, Float, Date, Time
+from sqlalchemy.orm import declarative_base, sessionmaker
 from common.SecretCode import Wst
 
 

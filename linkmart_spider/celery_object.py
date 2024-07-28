@@ -42,6 +42,7 @@ def run_spider(spider_name, last_goods=0, category_id=0):
     # 设置配置
     settings.set('last_goods', last_goods, priority='cmdline')
     process = CrawlerProcess(settings)
+    print('*'*30+'crawler process start', end='')
     # 不同spider传递不同params
     if spider_name == 'goods':
         process.crawl(spider_name, category_id=category_id)
@@ -49,17 +50,20 @@ def run_spider(spider_name, last_goods=0, category_id=0):
         process.crawl(spider_name, custom_date=category_id)
     else:
         process.crawl(spider_name)
-    process.start(stop_after_crawl=True)    # 爬虫结束后 关闭引擎
-    process.stop()
+    # process.start(stop_after_crawl=True)    # 爬虫结束后 关闭引擎
+    process.start()
+    process.stop()  # 等待爬虫结束
 
 @celery_spider.task
 def run_goods_spider(**kwargs):
     args = (val for val in kwargs.values())
     # 开启新的进程
-    process = multiprocessing.Process(target=run_spider, args=args)
+    # AssertionError: daemonic processes are not allowed to have children 守护进程设置为False
+    process = multiprocessing.Process(target=run_spider, args=args, daemon=False)
     process.start()
     # 等待进程结束
     process.join()
+
     r.set('spider_store_id', 0)
 
 @celery_spider.task
@@ -77,25 +81,28 @@ def before_dawn():
         process = multiprocessing.Process(target=run_spider, args=('goods', 0))
         process.start()
         process.join()
-        time.sleep(5)
+        # run_spider('goods', 0)
+        time.sleep(10)
         # 爬取最近一月(不包括今天)的营业额
         process = multiprocessing.Process(target=run_spider, args=('turnover', 0))
         process.start()
         process.join()
-        time.sleep(5)
+        # run_spider('turnover', 0)
+        time.sleep(10)
         # 爬取不包括今天的订单(过去2天)
-        process = multiprocessing.Process(target=run_spider, args=('orderform', 0))
-        process.start()
-        process.join()
-        time.sleep(30)
+        # process = multiprocessing.Process(target=run_spider, args=('orderform', 0))
+        # process.start()
+        # process.join()
+        # run_spider('orderform', 0)
+        time.sleep(5)
     # 爬虫运行结束后,将spider_store_id 归零
     r.set('spider_store_id', 0)
-    models.end()
+    # models.end()
 
 celery_spider.conf.beat_schedule = {
     'every-30-minutes':{
         'task': 'celery_object.before_dawn',
-        'schedule': crontab(minute='19', hour='17'),
+        'schedule': crontab(minute='30', hour='17'),
         'args':(),
     }
 }

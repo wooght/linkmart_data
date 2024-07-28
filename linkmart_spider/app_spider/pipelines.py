@@ -134,8 +134,6 @@ class AppSpiderPipeline:
                     models.db.add(models.Turnover(**t_item))
                 else:
                     print('已经存在{}'.format(turnover_date))
-
-
         else:
             print('item error')
 

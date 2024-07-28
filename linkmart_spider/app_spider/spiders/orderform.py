@@ -24,7 +24,6 @@ class OrderformSpider(scrapy.Spider):
             params: custom_date 自定义时间 str 'Y/m/d
         """
         super().__init__(*args, **kwargs)
-        print('接受params', custom_date)
         self.custom_date = custom_date if custom_date else None
 
     def start_requests(self) -> Iterable[Request]:
@@ -37,7 +36,6 @@ class OrderformSpider(scrapy.Spider):
             else:
                 # 给定日期的前一天
                 start_date = self.WDate.before_day(to_current_days+1)
-                print('起始时间:', start_date, end_date)
         else:
             # 默认今天的前两天
             end_date = self.WDate.now_date

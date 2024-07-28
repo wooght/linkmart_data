@@ -21,7 +21,6 @@ BOT_NAME = "app_spider"
 SPIDER_MODULES = ["app_spider.spiders"]
 NEWSPIDER_MODULE = "app_spider.spiders"
 
-# Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 CONCURRENT_REQUESTS = 8                # 系统并发量
 DOWNLOAD_DELAY = 5                     # 下载延迟时间 单位秒
@@ -30,7 +29,7 @@ CONCURRENT_REQUESTS_PER_IP = 1         # 同IP并发量
 COOKIES_ENABLED = True                 # 是否启动cookie
 RETRY_TIMES = 1                        # 重试次数
 # 日志级别  CRITICAL/ERROR/WARNING/INFO/DEBUG
-LOG_LEVEL = "ERROR"
+LOG_LEVEL = "DEBUG"
 LOG_ENABLED = True
 LOG_STDOUT = False   # True 可能会导致scrapyd显示问题
 USER_AGENT = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 "
@@ -46,6 +45,9 @@ DOWNLOADER_MIDDLEWARES = {
     "app_spider.d_middlewares.loginmiddlewares.LoginMiddelWare": 543
 }
 
+ITEM_PIPELINES = {
+   "app_spider.pipelines.AppSpiderPipeline": 300,
+}
 # 自定义参数
 LAST_GOODS = 0
 
@@ -72,9 +74,7 @@ LAST_GOODS = 0
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-   "app_spider.pipelines.AppSpiderPipeline": 300,
-}
+
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
