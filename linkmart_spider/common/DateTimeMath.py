@@ -23,8 +23,11 @@ class DateTimeMath:
         self.date_model = date_model
         self.time_model = time_model
         self.datetime_model = date_model + ' ' + time_model
-        self.now_date = time.strftime(self.date_model, self.time_struct)
+        self.now_date = self.get_now_date()
         self.now_time = time.strftime(self.time_model, self.time_struct)
+
+    def get_now_date(self):
+        return time.strftime(self.date_model, time.localtime())
 
     def __str__(self):
         """ 实例化后默认得到当前日期时间 """
