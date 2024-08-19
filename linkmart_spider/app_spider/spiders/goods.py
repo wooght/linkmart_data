@@ -1,3 +1,11 @@
+# -- coding: utf-8 -
+"""
+@project    :linkmart_data
+@file       :goods.py
+@Author     :wooght
+@Date       :2024/6/25 17:18
+@Content    :商品spider
+"""
 from typing import Iterable
 
 import scrapy
@@ -9,13 +17,20 @@ import json
 
 class GoodsSpider(scrapy.Spider):
     name = "goods"
+    # 类别请求API模型
     url_template = 'https://retailadminapi-erp.meituan.com/api/v2/goods?pageNo={}&pageSize={}&categoryId={}&yodaReady=h5&csecplatform=4&csecversion=2.4.0'
+    # 无类别请求API模型
     no_category_template = 'https://retailadminapi-erp.meituan.com/api/v2/goods?pageNo={}&pageSize={}&yodaReady=h5&csecplatform=4&csecversion=2.4.0'
     current_url = ''    # 当前运行url模版 上方二选一
     start_page = 1      # 开始页码
     pagesize = 40       # 单页显示条数
 
     def __init__(self, category_id, *args, **kwargs):
+        """
+            params: category_id 类别ID
+            判断爬取目的:获取全部/最新第一页
+            判断爬取类别:默认最新一页/某个类别全部
+        """
         super().__init__(*args, **kwargs)
         self.last_goods = get_project_settings().get('LAST_GOODS')       # 1 获取全部 0 只获取第一页
         self.category_id = category_id
@@ -27,23 +42,39 @@ class GoodsSpider(scrapy.Spider):
             self.current_url = self.no_category_template
 
     def make_url(self, page):
+        """
+            生成新的请求地址
+            params: page 页码
+            return: 新地址
+        """
         args = (page, self.pagesize, self.category_id) if int(self.category_id) != 0 else (page, self.pagesize)
         return self.current_url.format(*args)
 
     def start_requests(self) -> Iterable[Request]:
-        print('起始页面:'+self.make_url(1))
+        """
+            开始请求
+        """
+        print('goods起始页面:'+self.make_url(1))
         yield Request(
             url=self.make_url(1),
             callback=self.parse, meta={'native': 1})
 
     def parse(self, response, *args):
+        """
+            数据处理
+            goods数据结构:{'bar_coe':str, 'name':str, ...}
+        """
+        # GoodsItem 数据结构: {store_id:int, goods_data:[{},{},...]}
         item = GoodsItem()
         item['store_id'] = response.request.meta['store_id']
         item['goods_data'] = []
         result_data = json.loads(response.body.decode('utf-8'))
+        # 当前页码
         result_page = result_data['data']['page']
+        # 请求响应的所有goods
         goods_original = result_data['data']['goodsList']
         for g in goods_original:
+            # goods数据转换,组装
             item['goods_data'].append({'bar_code': g['barcode'], 'name': g['name'], 'cost': g['costPrice'] / 100,
                                        'price': g['sellingPrice'] / 100, 'stock_nums': int(g['stock']),
                                        'place': g['origin'] if 'origin' in g.keys() else '',

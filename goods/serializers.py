@@ -15,6 +15,9 @@ class GoodsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class QualitySerializer(serializers.ModelSerializer):
+    """
+        保质单序列化器
+    """
     # 外键对应的序列化器
     SGoods = GoodsSerializer
 

@@ -21,6 +21,7 @@ class LoginMiddelWare(WebDriverMiddleWare):
 
     clearn_data = CleanData('')
     user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 TitansX/11.11.15 KNB/1.0 iOS/17.4.1 App/(null)/1.18.8 meituangroup/com.meituan.erp.retail.admin/1.18.8 meituangroup/1.18.8 WKWebView'
+    # 所需headers
     headers = {
         "openid": "",
         "Accept": "application/json, text/plain, */*",
@@ -39,13 +40,22 @@ class LoginMiddelWare(WebDriverMiddleWare):
         "platform": "3",
         "Referer": "",
         "sandbox": "",
-        "Sec-Fetch-Mode": "cors",
-        "Sec-Fetch-Site": "same-origin",
-        "Sec-Fetch-Dest": "empty",
+        # 安全请求字段
+        "Sec-Fetch-Mode": "cors",           # 请求模式  cors 跨域(response会有cors响应头),no-cors请求(response 无cors响应头)
+                                            # no-cors 常用语图片,脚本,CSS等
+                                            # same-origin 请求同源,不能跨域
+                                            # navigate 页面切换,返回的内容应该是html
+        "Sec-Fetch-Site": "same-origin",    # 发起者与目标之间的关系   cross-site 跨域请求, same-origin 同源, none 直接输入地址访问等
+                                            # same-site 重定向相关
+        "Sec-Fetch-Dest": "empty",          # 如何使用获取的数据/期望得到什么数据,document/frame/iframe/object/empty/font/image/worker/script
+        # "Sec-Fetch-User": "?1"            # 用户是否激活触发 布尔值      ?1 请求由用户行为触发(点击导航,按钮等) ?0 由其他原因触发
         # "mtgsig":{"a1":"1.1", "a3":0}
     }
 
     def __init__(self):
+        """
+            获取爬虫运行所需数据:门店信息,账号信息,COOKIE列表
+        """
         self.headless = True
 
         # 获取门店信息
@@ -64,11 +74,17 @@ class LoginMiddelWare(WebDriverMiddleWare):
 
     @classmethod
     def from_crawler(cls, crawler):
+        """
+            注册中间件
+        """
         s = cls()
         crawler.signals.connect(s.process_spider_closed, spider_closed)
         return s
 
     def set_option(self):
+        """
+            设置WebDriver并启动
+        """
         self.options.add_argument("--user-agent={}".format(self.user_agent))  # user-agent
         super().set_options()
         if self.get_url(self.index_url):
@@ -108,8 +124,15 @@ class LoginMiddelWare(WebDriverMiddleWare):
             raise IgnoreRequest('访问失败{}'.format(self.index_url))
 
     def process_request(self, request, spider):
+        """
+            请求包装
+        """
         request.meta['store_id'] = self.store_id
         if 'native' in request.meta.keys():
+            """ 
+                scrapy 访问API
+                组装headers,COOKIES
+            """
             self.headers['poiid'] = self.cookies['retail-poiid']
             referer_model = "https://retailadmin-erp.meituan.com/report.html?bizlogintoken="
             self.headers['Referer'] = referer_model + self.cookies['erp-bsid'] + "&poiId=" + self.cookies[
@@ -130,6 +153,9 @@ class LoginMiddelWare(WebDriverMiddleWare):
             request.cookies = self.cookies
             return None
         else:
+            """ 
+                WebDriver直接访问API
+            """
             print('访问spider:{}提供的URL:{}'.format(spider.name, request.url))
             self.get_url(request.url)
             self.delay(1)
@@ -145,6 +171,9 @@ class LoginMiddelWare(WebDriverMiddleWare):
                 raise IgnoreRequest('访问失败{}'.format(request.url))
 
     def process_response(self, request, response, spider):
+        """
+            响应数据判断
+        """
         result_body = json.loads(response.body.decode('utf-8'))
         if 'error' in result_body.keys():
             print('process Response error :{}'.format(result_body))
@@ -156,6 +185,9 @@ class LoginMiddelWare(WebDriverMiddleWare):
         return response
 
     def process_exception(self, request, exception, spider):
+        """
+            异常判断
+        """
         print("捕获异常:{},url:{}".format(exception.__class__.__name__, request.url))
         """
             MaxRetryError

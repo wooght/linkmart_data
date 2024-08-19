@@ -6,10 +6,9 @@
 @Date       :2024/7/2 22:51
 @Content    :linkmart 商品视图
 """
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView, GenericAPIView
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet, GenericViewSet
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, ListModelMixin, UpdateModelMixin
+from rest_framework.generics import ListAPIView, GenericAPIView
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
+from rest_framework.mixins import UpdateModelMixin
 from rest_framework.response import Response
 from desktop.models import GoodsClassify, GoodsList, GoodsQuality, OrderForm
 from goods.serializers import GoodsSerializer, QualitySerializer, QualityPutSerializer

@@ -1,3 +1,11 @@
+# -- coding: utf-8 -
+"""
+@project    :linkmart_data
+@file       :orderform.py
+@Author     :wooght
+@Date       :2024/6/25 17:18
+@Content    :订单spider
+"""
 from typing import Iterable
 
 import scrapy
@@ -13,20 +21,23 @@ class OrderformSpider(scrapy.Spider):
     form_text = json.loads('{"startTime":"1716825600000","endTime":"1716903900000","orderIdMatch":"","paymentType":0,"payTypeName":"全部","payType":-1,"startDate":"2024/05/28 00:00","endDate":"2024/05/28 21:45","cashierId":0,"discountType":0,"orderType":0,"offset":0,"limit":20}')
     form_data = {key:str(value) for key, value in form_text.items()}
     last_order_id = '0'
-    WDate = DateTimeMath('%Y/%m/%d', '%H:%M')
     """
         WDate 时间戳:   171,954,0933
         url需求时间戳    171,682,5600,000
     """
+    WDate = DateTimeMath('%Y/%m/%d', '%H:%M')
 
     def __init__(self, custom_date=None, *args, **kwargs):
         """
-            params: custom_date 自定义时间 str 'Y/m/d
+            params: custom_date 自定义时间 str 'Y/m/d'
         """
         super().__init__(*args, **kwargs)
         self.custom_date = custom_date if custom_date else None
 
     def start_requests(self) -> Iterable[Request]:
+        """
+            组装请求参数self.form_data
+        """
         if self.custom_date:
             # 自定义时间
             end_date = self.custom_date
@@ -41,9 +52,11 @@ class OrderformSpider(scrapy.Spider):
             end_date = self.WDate.now_date
             start_date = self.WDate.before_day(3)
         self.form_data['startDate'] = start_date[0] + ' 00:00'
+        # API时间戳多3个000
         self.form_data['startTime'] = str(int(self.WDate.str_to_stamp(start_date[0]+' 00:00')) * 1000)
         self.form_data['endDate'] = end_date + ' 00:00'
         self.form_data['endTime'] = str(int(self.WDate.str_to_stamp(end_date+' 00:00')) * 1000)
+        # POST请求
         yield FormRequest(url="https://retailadmin-erp.meituan.com/api/order/queryOrder",
                           method='POST',
                           formdata=self.form_data,
@@ -53,12 +66,14 @@ class OrderformSpider(scrapy.Spider):
         """
             订单数据结构
             {'orders':[{'orderbase':{}, 'orderItems':[]},...], 'hasNext':True}
+            OrderFormItem 数据结构: {store_id:int, orders_data:[{},{},..]}
         """
         yield_item = OrderFormItem()
         # 先指定store_id
         yield_item['store_id'] = response.request.meta['store_id']
         yield_item['orders_data'] = []
         result_data = json.loads(response.body.decode('utf-8'))
+        # 获取订单数据
         result_orders = result_data['data']['orders']
         for order in result_orders:
             order_tmp = {}
@@ -72,8 +87,9 @@ class OrderformSpider(scrapy.Spider):
             order_tmp['form_time'] = order_base['createdTime'].split(' ')[1]
             order_tmp['store_id'] = yield_item['store_id']
             self.last_order_id = order_base['id']   # 订单最后一项的ID值, 作为下一页的起点
+            # 遍历订单商品列表
             for item in order_item:
-                # 订单的每个商品信息
+                # 订单的每个商品信息, 数据转换
                 goods_tmp = {'goods_name': item['skuName'].strip(), 'sku_id': item['skuId'], 'goods_num': item['count'],
                              'goods_money': item['price'] / 100}
                 yield_item['orders_data'].append({**order_tmp, **goods_tmp})
@@ -84,8 +100,10 @@ class OrderformSpider(scrapy.Spider):
         yield yield_item
         if result_data['data']['hasNext']:
             """
+                继续请求地址:
                 https://retailadmin-erp.meituan.com/api/order/queryOrder?yodaReady=h5&csecplatform=4&csecversion=2.4.0
             """
+            # 最后一个ID,下一页的起点
             self.form_data['lastOrderId'] = self.last_order_id
             yield FormRequest(url="https://retailadmin-erp.meituan.com/api/order/queryOrder?yodaReady=h5&csecplatform=4&csecversion=2.4.0",
                               method='POST',

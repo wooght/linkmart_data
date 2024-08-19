@@ -8,7 +8,6 @@
 """
 from .BaseAnalysis import BaseAnalysis, np, pd
 from django_pandas.io import read_frame
-from analysis.DateTimeMath import WDateTime
 
 class OrdersAnalysis(BaseAnalysis):
     goods = pd.DataFrame()              # SKU数据

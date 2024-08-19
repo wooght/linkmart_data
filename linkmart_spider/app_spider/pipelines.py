@@ -118,11 +118,11 @@ class AppSpiderPipeline:
                         # print('重复订单{}, {}'. format(order['form_code'], order['goods_name']))
                         continue
                     else:
-                        # print('执行添加订单')
+                        print('执行添加订单')
                         models.db.add(models.OrderForm(**order))
                 else:
                     # 商品不存在
-                    print(order)
+                    print('商品不存在', order)
             models.db.commit()
         elif isinstance(item, TurnoverFormItem):
             """
