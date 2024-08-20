@@ -127,7 +127,7 @@ class DateTimeMath:
         Returns [date,stamp]
         -------
         """
-        before_stamp = self.time_stamp - 24 * 3600 * days
+        before_stamp = time.time() - 24 * 3600 * days
         before_datetime = self.stamp_to_str(before_stamp)
         date = before_datetime.split(' ')[0]
         date_stamp = self.str_to_stamp(before_datetime if not is_zero else date)
