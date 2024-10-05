@@ -20,14 +20,19 @@ class OrderFormView(APIView):
         订单视图 继承 基类
         因为不需要定义queryset, serializer,permission等
     """
-    # 默认订单近400 天数据
     start_date = WDate.before_day(400)[0]
     end_date = WDate.before_day(1)[0]
+
+    def get_date(self):
+        # 默认订单近400 天数据
+        self.start_date = WDate.before_day(400)[0]
+        self.end_date = WDate.before_day(1)[0]
 
     def get(self, request):
         """
             通过Classify查询/全部数据
         """
+        self.get_date()
         store_id = self.request.COOKIES['store_id']
         classify_id = self.request.query_params.get('categoryId')
         # 所有订单
@@ -66,6 +71,7 @@ class OrderFormView(APIView):
         """
             通过查询SKU获取订单
         """
+        self.get_date()
         store_id = self.request.COOKIES['store_id']
         search_words = self.request.data['search']
         goods_queryset = GoodsList.objects.filter(
