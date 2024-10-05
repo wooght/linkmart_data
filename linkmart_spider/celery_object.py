@@ -93,7 +93,7 @@ def before_dawn():
         process = multiprocessing.Process(target=run_spider, args=('orderform', 0))
         process.start()
         process.join()
-        run_spider('orderform', 0)
+        # run_spider('orderform', 0)
         time.sleep(5)
     # 爬虫运行结束后,将spider_store_id 归零
     r.set('spider_store_id', 0)
