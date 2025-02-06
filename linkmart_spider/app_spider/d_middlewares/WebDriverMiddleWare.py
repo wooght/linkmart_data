@@ -76,6 +76,7 @@ class WebDriverMiddleWare(object):
         for cookie in cookies:
             self.r.hset(self.cookie_name, key=cookie['name'], value=str(cookie['value']))
             cookie_temp[cookie['name']] = cookie['value']
+        self.r.hexpire(self.cookie_name, 3600*24*25)    # 设置过期时间25天
         # 当前新cookie
         self.cookies = cookie_temp
 
